@@ -48,7 +48,7 @@ public class Lot extends javax.swing.JFrame {
         jButton6 = new javax.swing.JButton();
         jButton7 = new javax.swing.JButton();
 
-        setTitle("Manage Shops (Suppliers)");
+        setTitle("Manage Lots");
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
         jLabel1.setText("Lot ID");
