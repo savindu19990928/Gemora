@@ -88,7 +88,7 @@ public class Lot extends javax.swing.JFrame {
 
         jLabel5.setText("Total Cost");
 
-        jButton5.setText("Manage Other Cost");
+        jButton5.setText("Manage Materials");
         jButton5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton5ActionPerformed(evt);
