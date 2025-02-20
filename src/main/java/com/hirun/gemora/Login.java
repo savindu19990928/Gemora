@@ -4,6 +4,12 @@
  */
 package com.hirun.gemora;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author User
@@ -37,7 +43,7 @@ public class Login extends javax.swing.JFrame {
         setTitle("Login");
         setResizable(false);
 
-        jLabel1.setText("Username");
+        jLabel1.setText("E-mail");
 
         jLabel3.setText("Password");
 
@@ -95,12 +101,38 @@ public class Login extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private boolean authenticateUser(String username, String password) {
+        String sql = "SELECT * FROM Auth WHERE email = ? AND pass = ?";
+
+        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pst = con.prepareStatement(sql)) {
+
+            pst.setString(1, username);
+            pst.setString(2, password);
+            ResultSet rs = pst.executeQuery();
+
+            return rs.next(); // Returns true if user exists
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return false;
+    }
+
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // TODO add your handling code here:
+        String username = jTextField3.getText();
+        String password = new String(jPasswordField1.getPassword());
+
+        if (authenticateUser(username, password)) {
+            Home form = new Home();
+            form.setVisible(true);
+            this.dispose();
+        } else {
+            JOptionPane.showMessageDialog(this, "Invalid Username or Password", "Login Failed", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         // TODO add your handling code here:
+        System.exit(0);
     }//GEN-LAST:event_jButton5ActionPerformed
 
     /**

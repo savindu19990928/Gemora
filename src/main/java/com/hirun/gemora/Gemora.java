@@ -11,6 +11,7 @@ package com.hirun.gemora;
 public class Gemora {
 
     public static void main(String[] args) {
-        System.out.println("Hello World!");
+        Login form = new Login();
+        form.show();
     }
 }

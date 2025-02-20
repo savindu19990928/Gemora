@@ -4,10 +4,10 @@
  */
 package com.hirun.gemora;
 
-/**
- *
- * @author User
- */
+import com.hirun.gemora.dao.SupplierDAO;
+import javax.swing.JOptionPane;
+import org.json.JSONObject;
+
 public class ShopsSupplier extends javax.swing.JFrame {
 
     /**
@@ -142,58 +142,117 @@ public class ShopsSupplier extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+        String name = jTextField1.getText().trim();  // Get the supplier name from the text field
+        if (name.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Please enter a valid supplier name.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            // Fetch the supplier information by name from the database
+            JSONObject supplier = SupplierDAO.readSupplierByName(name);
+
+            // Check if the supplier exists in the database
+            if (supplier == null) {
+                JOptionPane.showMessageDialog(null, "Supplier not found.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Populate the text fields with the supplier's details
+            jTextField2.setText(supplier.getString("address"));
+            jTextField3.setText(supplier.getString("ownerName"));
+            jTextField4.setText(supplier.getString("contact_info"));
+
+        } catch (Exception e) {
+            // Handle any exceptions (e.g., network issues, database errors)
+            JOptionPane.showMessageDialog(null, "An error occurred while fetching the supplier details: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();  // Optionally log the stack trace for debugging
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
+        try {
+            // Get input values from text fields
+            String name = jTextField1.getText().trim();
+            String address = jTextField2.getText().trim();
+            String ownerName = jTextField3.getText().trim();
+            String contactInfo = jTextField4.getText().trim();
+
+            // Validate input fields
+            if (name.isEmpty() || address.isEmpty() || ownerName.isEmpty() || contactInfo.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "All fields are required!", "Input Error", JOptionPane.ERROR_MESSAGE);
+                return; // Stop execution if validation fails
+            }
+
+            // Attempt to add supplier
+            SupplierDAO.addSupplier(name, address, ownerName, contactInfo);
+
+            // Clear the fields after adding
+            jTextField1.setText("");
+            jTextField2.setText("");
+            jTextField3.setText("");
+            jTextField4.setText("");
+
+            // Show a success message
+            JOptionPane.showMessageDialog(null, "Supplier added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (Exception e) {
+            // Show an error message if an exception occurs
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace(); // Log error details for debugging
+        }
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
+        try {
+            // Get input values from text fields
+            String name = jTextField1.getText().trim();
+            String address = jTextField2.getText().trim();
+            String ownerName = jTextField3.getText().trim();
+            String contactInfo = jTextField4.getText().trim();
+
+            // Validate if all fields are filled
+            if (name.isEmpty() || address.isEmpty() || ownerName.isEmpty() || contactInfo.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "All fields are required!", "Input Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Call the method to update the supplier
+            SupplierDAO.updateSupplier(name, address, ownerName, contactInfo);
+
+            // Clear the fields after updating
+            jTextField1.setText("");
+            jTextField2.setText("");
+            jTextField3.setText("");
+            jTextField4.setText("");
+
+            // Show success message
+            JOptionPane.showMessageDialog(null, "Supplier updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (Exception e) {
+            // Show an error message if an exception occurs
+            JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace(); // Log error details for debugging
+        }
+
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // TODO add your handling code here:
+        String name = jTextField1.getText().trim();  // Get the supplier name from the text field
+        if (name.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Please enter a valid supplier name.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            SupplierDAO.removeSupplier(name);
+        } catch (Exception e) {
+            // Handle any exceptions (e.g., network issues, database errors)
+            JOptionPane.showMessageDialog(null, "An error occurred while fetching the supplier details: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();  // Optionally log the stack trace for debugging
+        }
     }//GEN-LAST:event_jButton4ActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ShopsSupplier.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ShopsSupplier.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ShopsSupplier.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(ShopsSupplier.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new ShopsSupplier().setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;

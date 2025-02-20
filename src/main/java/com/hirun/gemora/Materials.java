@@ -4,6 +4,18 @@
  */
 package com.hirun.gemora;
 
+import com.hirun.gemora.dao.MaterialAdditionalCostDAO;
+import javax.swing.JOptionPane;
+import com.hirun.gemora.dao.MaterialDAO;
+import java.awt.HeadlessException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  *
  * @author User
@@ -43,7 +55,6 @@ public class Materials extends javax.swing.JFrame {
         jLabel7 = new javax.swing.JLabel();
         jTextField7 = new javax.swing.JTextField();
         jButton7 = new javax.swing.JButton();
-        jButton8 = new javax.swing.JButton();
         jButton9 = new javax.swing.JButton();
 
         setTitle("Manage Materials");
@@ -96,13 +107,6 @@ public class Materials extends javax.swing.JFrame {
             }
         });
 
-        jButton8.setText("Reset");
-        jButton8.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton8ActionPerformed(evt);
-            }
-        });
-
         jButton9.setText("Manage Payment");
         jButton9.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -136,8 +140,7 @@ public class Materials extends javax.swing.JFrame {
                             .addComponent(jButton4)
                             .addComponent(jButton3)
                             .addComponent(jButton2)
-                            .addComponent(jButton1)
-                            .addComponent(jButton8))
+                            .addComponent(jButton1))
                         .addGap(0, 50, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
@@ -173,9 +176,8 @@ public class Materials extends javax.swing.JFrame {
                 .addGap(25, 25, 25)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
-                    .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton8))
-                .addGap(25, 25, 25)
+                    .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(26, 26, 26)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
                     .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -190,31 +192,189 @@ public class Materials extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // TODO add your handling code here:
+        String idText = jTextField1.getText().trim();
+
+        if (idText.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Please enter a valid material ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this material?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        try {
+            int materialId = Integer.parseInt(idText);
+            MaterialDAO.removeMaterial(materialId);
+
+            JOptionPane.showMessageDialog(null, "Material removed successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            jTextField1.setText("");
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "ID must be a valid number.", "Input Error", JOptionPane.ERROR_MESSAGE);
+        } catch (HeadlessException e) {
+            JOptionPane.showMessageDialog(null, "An unexpected error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
+        String idText = jTextField1.getText().trim();
+        String name = jTextField2.getText().trim();
+        String unitText = jTextField3.getText().trim();
+        String unitPriceText = jTextField5.getText().trim();
+        int dmg = Integer.parseInt(jTextField4.getText().trim());
+
+        if (idText.isEmpty() || name.isEmpty() || unitText.isEmpty() || unitPriceText.isEmpty() || jTextField4.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "All fields are required!", "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            int materialId = Integer.parseInt(idText);
+            int unit = Integer.parseInt(unitText);
+            double unitPrice = Double.parseDouble(unitPriceText);
+            MaterialDAO.updateMaterial(materialId, name, unit, dmg, unitPrice);
+
+            JOptionPane.showMessageDialog(null, "Material updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "ID and Unit must be valid numbers.", "Input Error", JOptionPane.ERROR_MESSAGE);
+        } catch (HeadlessException e) {
+            JOptionPane.showMessageDialog(null, "An unexpected error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
+        String name = jTextField2.getText().trim();
+        String unitText = jTextField3.getText().trim();
+        String unitPriceText = jTextField5.getText().trim();
+
+        if (name.isEmpty() || unitText.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Please enter valid material details.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        int dmg;
+        if ("".equals(jTextField4.getText())) {
+            dmg = 0;
+        } else {
+            dmg = Integer.parseInt(jTextField4.getText());
+        }
+
+        try {
+            int unit = Integer.parseInt(unitText);
+            double unitPrice = Double.parseDouble(unitPriceText);
+            MaterialDAO.addMaterial(name, unit, unitPrice, dmg);
+
+            JOptionPane.showMessageDialog(null, "Material added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            jTextField1.setText("");
+            jTextField2.setText("");
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Unit must be a valid number.", "Input Error", JOptionPane.ERROR_MESSAGE);
+        } catch (HeadlessException e) {
+            JOptionPane.showMessageDialog(null, "An unexpected error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+        int materialId = Integer.parseInt(jTextField1.getText());
+        if (!doesMaterialIdExist(materialId)) {
+            JOptionPane.showMessageDialog(this, "Material ID not found. Please enter a valid ID.", "Invalid Material ID", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        try {
+            double totalRealCost = 0, totalAdditionalCost = 0;
+            JSONObject material = MaterialDAO.readMaterial();
+            double unitPrice = material.getDouble("unit_price");
+            int units = material.getInt("unit");
+
+            if (material.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "No material found.", "Material Details", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+
+            List <JSONObject> additionalCosts = MaterialAdditionalCostDAO.readMaterialAdditionalCostsByMaterialId(materialId);
+            totalAdditionalCost = additionalCosts.stream().mapToDouble(obj -> obj.optDouble("cost_amount", 0.0)).sum();
+            totalRealCost = totalAdditionalCost + (unitPrice * units);
+            
+            jTextField2.setText(material.getString("name"));
+            jTextField3.setText(String.valueOf(material.getInt("unit")));
+            jTextField4.setText(String.valueOf(material.getInt("damaged_unit")));
+            jTextField5.setText(String.valueOf(material.getDouble("unit_price")));
+            jTextField7.setText(totalRealCost + "");
+        } catch (HeadlessException | JSONException e) {
+            JOptionPane.showMessageDialog(null, "An error occurred while fetching material: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private boolean doesMaterialIdExist(int materialId) {
+        String query = "SELECT COUNT(*) FROM Material WHERE material_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, materialId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0; // If count > 0, the ID exists
+                }
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return false;
+    }
+
+
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-        // TODO add your handling code here:
+        String idText = jTextField1.getText().trim();
+
+        if (idText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter a Material ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            int materialId = Integer.parseInt(idText);
+
+            // Ensure materialId exists in the database before opening the form
+            if (!doesMaterialIdExist(materialId)) {
+                JOptionPane.showMessageDialog(this, "Material ID not found. Please enter a valid ID.", "Invalid Material ID", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // Open the ManageCost form
+            ManageCost form = new ManageCost(materialId);
+            form.setVisible(true);  // Use setVisible instead of show() (show() is deprecated)
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid input. Please enter a numeric Material ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
+        }
+
     }//GEN-LAST:event_jButton7ActionPerformed
 
-    private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton8ActionPerformed
-
     private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
-        // TODO add your handling code here:
+        String idText = jTextField1.getText().trim();
+
+        if (idText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter a Material ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            int materialId = Integer.parseInt(idText);
+
+            // Ensure materialId exists in the database before opening the form
+            if (!doesMaterialIdExist(materialId)) {
+                JOptionPane.showMessageDialog(this, "Material ID not found. Please enter a valid ID.", "Invalid Material ID", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // Open the ManageCost form
+            ManagePayment form = new ManagePayment(materialId);
+            form.setVisible(true);  // Use setVisible instead of show() (show() is deprecated)
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid input. Please enter a numeric Material ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton9ActionPerformed
 
     /**
@@ -243,44 +403,6 @@ public class Materials extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(Materials.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Materials().setVisible(true);
-            }
-        });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -289,7 +411,6 @@ public class Materials extends javax.swing.JFrame {
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton7;
-    private javax.swing.JButton jButton8;
     private javax.swing.JButton jButton9;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
