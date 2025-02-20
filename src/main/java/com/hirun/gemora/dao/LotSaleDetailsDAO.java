@@ -9,15 +9,34 @@ public class LotSaleDetailsDAO {
 
     // Add a new lot sale detail
     public static boolean addLotSaleDetail(int saleId, int lotId, int quantitySold, double itemPrice) {
-        String sql = "INSERT INTO LotSaleDetails (sale_id, lot_id, quantity_sold, item_Price) VALUES (?, ?, ?, ?)";
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+        // SQL query to check if saleId exists in the LotSales table
+        String checkSaleExistsSql = "SELECT sale_id FROM LotSales WHERE sale_id = ?";
 
-            stmt.setInt(1, saleId);
-            stmt.setInt(2, lotId);
-            stmt.setInt(3, quantitySold);
-            stmt.setDouble(4, itemPrice);
+        // SQL query to insert into LotSaleDetails table
+        String insertSql = "INSERT INTO LotSaleDetails (sale_id, lot_id, quantity_sold, item_Price) VALUES (?, ?, ?, ?)";
 
-            return stmt.executeUpdate() > 0; // Returns true if insert successful
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement checkStmt = conn.prepareStatement(checkSaleExistsSql)) {
+
+            // Check if saleId exists
+            checkStmt.setInt(1, saleId);
+            ResultSet rs = checkStmt.executeQuery();
+
+            if (!rs.next()) {
+                // saleId does not exist in LotSales, return false or handle the error
+                System.out.println("Error: sale_id " + saleId + " does not exist in LotSales.");
+                return false;
+            }
+
+            // saleId exists, proceed with the insert
+            try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+                insertStmt.setInt(1, saleId);
+                insertStmt.setInt(2, lotId);
+                insertStmt.setInt(3, quantitySold);
+                insertStmt.setDouble(4, itemPrice);
+
+                return insertStmt.executeUpdate() > 0; // Returns true if insert is successful
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

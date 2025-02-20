@@ -14,9 +14,6 @@ public class DatabaseConnection {
         config.setJdbcUrl("jdbc:mysql://localhost:3306/hirun");
         config.setUsername("root");
         config.setPassword("savindu");
-        config.addDataSourceProperty("cachePrepStmts", "true");
-        config.addDataSourceProperty("prepStmtCacheSize", "250");
-        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
 
         ds = new HikariDataSource(config);
 

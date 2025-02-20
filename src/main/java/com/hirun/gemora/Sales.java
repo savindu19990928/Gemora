@@ -66,7 +66,7 @@ public class Sales extends javax.swing.JFrame {
         jComboBox1 = new javax.swing.JComboBox<>();
         jButton7 = new javax.swing.JButton();
 
-        setTitle("Manage Lots");
+        setTitle("Manage Sales");
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
         jLabel1.setText("Sale ID");
@@ -303,7 +303,6 @@ public class Sales extends javax.swing.JFrame {
             jComboBox1.setSelectedItem(buyer.getString("name"));
             jTextField3.setText(saleDetails.getString("sale_name"));
             jTextField4.setText(SaleDAO.getTotalPaymentForLot(saleId) + "");
-            
 
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Invalid Sale ID format.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -340,7 +339,29 @@ public class Sales extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-        // TODO add your handling code here:
+        String idText = jTextField1.getText().trim();
+
+        if (idText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter a Sale ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            int materialId = Integer.parseInt(idText);
+
+            // Ensure materialId exists in the database before opening the form
+            if (!doesLotIdExist(materialId)) {
+                JOptionPane.showMessageDialog(this, "Sale ID not found. Please enter a valid ID.", "Invalid Sale ID", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // Open the ManageCost form
+            ManageLots form = new ManageLots(materialId);
+            form.setVisible(true);
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid input. Please enter a numeric Sale ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed

@@ -38,10 +38,10 @@ public class ManageLots extends javax.swing.JFrame {
         tableModel.setRowCount(0);
         ProductLotDAO.loadProductLotsIntoTable(tableModel, sale_id);
         List<JSONObject> lots = ProductLotDAO.readProductLots();
-        List<String> supplierNames = lots.stream()
+        List<String> lotNames = lots.stream()
                 .map(json -> json.getString("name"))
                 .collect(Collectors.toList());
-        cModel = new DefaultComboBoxModel<>(supplierNames.toArray(new String[0]));
+        cModel = new DefaultComboBoxModel<>(lotNames.toArray(new String[0]));
         jComboBox2.setModel(cModel);
     }
 
@@ -65,7 +65,7 @@ public class ManageLots extends javax.swing.JFrame {
         jSpinner1 = new javax.swing.JSpinner();
         jSpinner2 = new javax.swing.JSpinner();
 
-        setTitle("Manage Payment");
+        setTitle("Manage Lots");
         setResizable(false);
 
         jLabel1.setText("Lot");
@@ -155,12 +155,16 @@ public class ManageLots extends javax.swing.JFrame {
         tableModel.setRowCount(0);
         try {
             int id = ProductLotDAO.getLotIdByName((String) jComboBox2.getSelectedItem());
-            
-            LotSaleDetailsDAO.addLotSaleDetail(sale_id, id,(int) jSpinner1.getValue(), (double) jSpinner2.getValue());
+
+            Number spinnerValue = (Number) jSpinner2.getValue();  // Get value as Number
+            double price = spinnerValue.doubleValue();  // Convert safely
+
+            LotSaleDetailsDAO.addLotSaleDetail(sale_id, id, (int) jSpinner1.getValue(), price);
+
             ProductLotDAO.loadProductLotsIntoTable(tableModel, sale_id);
 
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Please enter valid numeric values for Material ID and Amount!", "Input Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please enter valid numeric values for Lot ID and Amount!", "Input Error", JOptionPane.ERROR_MESSAGE);
         }
 
     }//GEN-LAST:event_jButton1ActionPerformed

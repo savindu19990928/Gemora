@@ -248,28 +248,61 @@ public class Materials extends javax.swing.JFrame {
         String unitText = jTextField3.getText().trim();
         String unitPriceText = jTextField5.getText().trim();
 
-        if (name.isEmpty() || unitText.isEmpty()) {
+        // Validate if name and numbers are entered
+        if (name.isEmpty() || unitText.isEmpty() || unitPriceText.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Please enter valid material details.", "Input Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
-        int dmg;
-        if ("".equals(jTextField4.getText())) {
-            dmg = 0;
-        } else {
-            dmg = Integer.parseInt(jTextField4.getText());
+
+        // Check if unitText is a valid integer
+        int unit;
+        try {
+            unit = Integer.parseInt(unitText);
+            if (unit < 0) {
+                JOptionPane.showMessageDialog(null, "Unit cannot be negative.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Unit must be a valid whole number.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
+        // Check if unitPriceText is a valid decimal number
+        double unitPrice;
         try {
-            int unit = Integer.parseInt(unitText);
-            double unitPrice = Double.parseDouble(unitPriceText);
-            int result = MaterialDAO.addMaterial(name, unit, unitPrice, dmg);
-
-            JOptionPane.showMessageDialog(null, "Material added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-            jTextField1.setText(result + "");
-            jTextField2.setText("");
+            unitPrice = Double.parseDouble(unitPriceText);
+            if (unitPrice < 0) {
+                JOptionPane.showMessageDialog(null, "Unit price cannot be negative.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "Unit must be a valid number.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Unit price must be a valid number.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Check if the damage field is empty or a valid integer
+        int dmg;
+        try {
+            String dmgText = jTextField4.getText().trim();
+            dmg = dmgText.isEmpty() ? 0 : Integer.parseInt(dmgText);
+            if (dmg < 0) {
+                JOptionPane.showMessageDialog(null, "Damaged units cannot be negative.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Damaged units must be a valid whole number.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // If all validations pass, add material
+        try {
+            int result = MaterialDAO.addMaterial(name, unit, unitPrice, dmg);
+            JOptionPane.showMessageDialog(null, "Material added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            jTextField1.setText(String.valueOf(result));
+            jTextField2.setText("");
+            jTextField3.setText("");
+            jTextField4.setText("");
+            jTextField5.setText("");
         } catch (HeadlessException e) {
             JOptionPane.showMessageDialog(null, "An unexpected error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -292,10 +325,10 @@ public class Materials extends javax.swing.JFrame {
                 return;
             }
 
-            List <JSONObject> additionalCosts = MaterialAdditionalCostDAO.readMaterialAdditionalCostsByMaterialId(materialId);
+            List<JSONObject> additionalCosts = MaterialAdditionalCostDAO.readMaterialAdditionalCostsByMaterialId(materialId);
             totalAdditionalCost = additionalCosts.stream().mapToDouble(obj -> obj.optDouble("cost_amount", 0.0)).sum();
             totalRealCost = totalAdditionalCost + (unitPrice * units);
-            
+
             jTextField2.setText(material.getString("name"));
             jTextField3.setText(String.valueOf(units));
             jTextField4.setText(String.valueOf(material.getInt("damaged_unit")));

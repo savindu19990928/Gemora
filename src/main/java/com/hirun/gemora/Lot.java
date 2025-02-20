@@ -270,9 +270,10 @@ public class Lot extends javax.swing.JFrame {
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         try {
             // Example values, replace with actual values from your UI fields or other sources
-            String lotName = jTextField1.getText().trim(); // Assuming there's a JTextField for lot name
+            String lotName = jTextField8.getText().trim(); // Assuming there's a JTextField for lot name
             int quantity = Integer.parseInt(jTextField2.getText().trim()); // Assuming there's a JTextField for quantity
             int damagedUnits = Integer.parseInt(jTextField3.getText().trim()); // Assuming there's a JTextField for damaged units
+            int lotId = Integer.parseInt(jTextField1.getText().trim()); // Assuming a JTextField for lot_id
 
             // Validate input fields
             if (lotName.isEmpty()) {
@@ -284,23 +285,28 @@ public class Lot extends javax.swing.JFrame {
             if (damagedUnits < 0 || damagedUnits > quantity) {
                 throw new IllegalArgumentException("Damaged units cannot exceed total quantity.");
             }
+            if (lotId <= 0) {
+                throw new IllegalArgumentException("Invalid Lot ID.");
+            }
 
-            // Establish a direct database connection (you can modify this as per your actual connection setup)
+            // Establish a direct database connection
             Connection con = DatabaseConnection.getConnection();
 
-            // 1. Insert the ProductLot record directly into the table
-            String sqlProductLot = "INSERT INTO ProductLot (name, quantity, damaged_unit) VALUES ('"
-                    + lotName + "', " + quantity + ", " + damagedUnits + ")";
-            Statement stmt = con.createStatement();
-            stmt.executeUpdate(sqlProductLot, Statement.RETURN_GENERATED_KEYS);
+            // Update the ProductLot record
+            String sqlUpdate = "UPDATE ProductLot SET name = ?, quantity = ?, damaged_unit = ? WHERE lot_id = ?";
+            PreparedStatement pstmt = con.prepareStatement(sqlUpdate);
+            pstmt.setString(1, lotName);
+            pstmt.setInt(2, quantity);
+            pstmt.setInt(3, damagedUnits);
+            pstmt.setInt(4, lotId);
 
-            // 2. Get the generated lot_id from the ProductLot table
-            ResultSet rs = stmt.getGeneratedKeys();
-            int lotId = 0;
-            if (rs.next()) {
-                lotId = rs.getInt(1);
+            int rowsUpdated = pstmt.executeUpdate();
+
+            if (rowsUpdated > 0) {
+                JOptionPane.showMessageDialog(this, "Record updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "No record found with the given Lot ID.", "Update Failed", JOptionPane.WARNING_MESSAGE);
             }
-            jTextField1.setText(lotId + "");
 
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Invalid number format. Please check your inputs.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -308,9 +314,10 @@ public class Lot extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Validation Error", JOptionPane.ERROR_MESSAGE);
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Database error occurred: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-        } catch (HeadlessException | JSONException e) {
+        } catch (HeadlessException e) {
             JOptionPane.showMessageDialog(this, "An unexpected error occurred: " + e.getMessage(), "Unknown Error", JOptionPane.ERROR_MESSAGE);
         }
+
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -347,6 +354,10 @@ public class Lot extends javax.swing.JFrame {
                 lotId = rs.getInt(1);
             }
             jTextField1.setText(lotId + "");
+            jTextField2.setText("");
+            jTextField3.setText("");
+            jTextField4.setText("");
+            jTextField8.setText("");
 
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Invalid number format. Please check your inputs.", "Error", JOptionPane.ERROR_MESSAGE);

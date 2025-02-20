@@ -76,8 +76,8 @@ public class ProductLotDAO {
     public static void loadProductLotsIntoTable(DefaultTableModel tableModel, int saleId) {
         String query = "SELECT pl.lot_id, pl.name, pl.quantity, pl.damaged_unit, pl.production_date "
                 + "FROM ProductLot pl "
-                + "JOIN LotSales ls ON pl.lot_id = ls.lot_id "
-                + "WHERE ls.sale_id = ?";
+                + "JOIN LotSaleDetails lsd ON pl.lot_id = lsd.lot_id "
+                + "WHERE lsd.sale_id = ?";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, saleId);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -86,7 +86,7 @@ public class ProductLotDAO {
                     int id = rs.getInt("lot_id");
                     String name = rs.getString("name");
                     int quantity = rs.getInt("quantity");
-                    double totalCost = getTotalLotCost(id);
+                    double totalCost = ((Number) getTotalLotCost(id)).doubleValue(); // Fix applied
 
                     tableModel.addRow(new Object[]{id, name, quantity, totalCost});
                 }
@@ -113,7 +113,6 @@ public class ProductLotDAO {
             while (rs.next()) {
                 JSONObject json = new JSONObject();
                 json.put("lot_id", rs.getInt("lot_id"));
-                json.put("product_id", rs.getInt("product_id"));
                 json.put("name", rs.getString("name"));
                 json.put("quantity", rs.getInt("quantity"));
                 json.put("damaged_unit", rs.getInt("damaged_unit"));
