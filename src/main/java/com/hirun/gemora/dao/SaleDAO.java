@@ -81,12 +81,11 @@ public class SaleDAO {
 
     // 4. Read Sale by ID (Retrieve Sale Information)
     public static JSONObject getSaleById(int saleId) {
-        String query = "SELECT s.sale_id, s.buyer_id, s.name AS sale_name, s.sale_date " +
-                       "FROM LotSale s WHERE s.sale_id = ?";
+        String query = "SELECT s.sale_id, s.buyer_id, s.name AS sale_name, s.sale_date "
+                + "FROM LotSale s WHERE s.sale_id = ?";
         JSONObject sale = new JSONObject();
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement(query)) {
 
             pstmt.setInt(1, saleId);
             ResultSet rs = pstmt.executeQuery();
@@ -106,5 +105,25 @@ public class SaleDAO {
         }
 
         return sale;
+    }
+
+    public static double getTotalPaymentForLot(int sale_id) {
+        String query = "SELECT SUM(quantity_sold * item_Price) AS total_payment FROM LotSaleDetails WHERE sale_id = ? GROUP BY lot_id";
+        double totalPayment = 0.0;
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, sale_id);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                totalPayment = rs.getDouble("total_payment");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return totalPayment;
     }
 }

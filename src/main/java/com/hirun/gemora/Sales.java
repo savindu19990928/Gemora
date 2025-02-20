@@ -302,6 +302,7 @@ public class Sales extends javax.swing.JFrame {
             JSONObject buyer = BuyerDAO.readBuyerById(saleDetails.getInt("buyer_id"));
             jComboBox1.setSelectedItem(buyer.getString("name"));
             jTextField3.setText(saleDetails.getString("sale_name"));
+            jTextField4.setText(SaleDAO.getTotalPaymentForLot(saleId) + "");
             
 
         } catch (NumberFormatException e) {
