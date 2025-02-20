@@ -67,7 +67,7 @@ public class ManageLots extends javax.swing.JFrame {
 
         jLabel1.setText("Lot");
 
-        jLabel2.setText("Profit Rate");
+        jLabel2.setText("Item Price");
 
         jButton1.setText("Add");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -93,7 +93,7 @@ public class ManageLots extends javax.swing.JFrame {
                 {null, null, null, null}
             },
             new String [] {
-                "Lot ID", "Lot Name", "Quantity", "Item Price"
+                "Lot ID", "Lot Name", "Quantity", "Total Price"
             }
         ));
         jScrollPane1.setViewportView(jTable1);
@@ -139,7 +139,7 @@ public class ManageLots extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(jSpinner2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(26, 26, 26)
+                .addGap(25, 25, 25)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 347, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(50, Short.MAX_VALUE))
         );
