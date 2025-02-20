@@ -98,4 +98,28 @@ public class BuyerDAO {
         }
         return json;
     }
+
+    public static JSONObject readBuyerById(int id) {
+        String sql = "SELECT * FROM Buyer WHERE buyer_id LIKE ? LIMIT 1";
+        JSONObject json = null;
+
+        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
+            pstmt.setInt(1, id);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    json = new JSONObject();
+                    json.put("buyer_id", rs.getInt("buyer_id"));
+                    json.put("name", rs.getString("name"));
+                    json.put("address", rs.getString("address"));
+                    json.put("ownerName", rs.getString("ownerName"));
+                    json.put("contact_info", rs.getString("contact_info"));
+                    json.put("is_active", rs.getBoolean("is_active"));
+                    json.put("created_at", rs.getTimestamp("created_at"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return json;
+    }
 }

@@ -4,15 +4,14 @@
  */
 package com.hirun.gemora;
 
+import java.awt.HeadlessException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 import javax.swing.JOptionPane;
-import org.json.JSONObject;
+import org.json.JSONException;
 
 /**
  *
@@ -48,14 +47,9 @@ public class Lot extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         jTextField4 = new javax.swing.JTextField();
         jButton4 = new javax.swing.JButton();
-        jLabel5 = new javax.swing.JLabel();
-        jTextField5 = new javax.swing.JTextField();
         jButton5 = new javax.swing.JButton();
-        jLabel6 = new javax.swing.JLabel();
-        jTextField6 = new javax.swing.JTextField();
-        jLabel7 = new javax.swing.JLabel();
-        jTextField7 = new javax.swing.JTextField();
-        jButton6 = new javax.swing.JButton();
+        jTextField8 = new javax.swing.JTextField();
+        jLabel8 = new javax.swing.JLabel();
 
         setTitle("Manage Lots");
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -96,8 +90,6 @@ public class Lot extends javax.swing.JFrame {
             }
         });
 
-        jLabel5.setText("Total Cost");
-
         jButton5.setText("Manage Materials");
         jButton5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -105,16 +97,7 @@ public class Lot extends javax.swing.JFrame {
             }
         });
 
-        jLabel6.setText("Total Income");
-
-        jLabel7.setText("Total Profit");
-
-        jButton6.setText("Manage Payments");
-        jButton6.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton6ActionPerformed(evt);
-            }
-        });
+        jLabel8.setText("Name");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -123,38 +106,27 @@ public class Lot extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(50, 50, 50)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(25, 25, 25)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(jTextField2, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                                    .addComponent(jTextField3, javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jTextField4)
-                                    .addComponent(jTextField1))
-                                .addGap(25, 25, 25)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jButton4)
-                                    .addComponent(jButton3)
-                                    .addComponent(jButton2)
-                                    .addComponent(jButton1)))
-                            .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 50, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(jButton6, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButton5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                            .addComponent(jTextField7, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jTextField5, javax.swing.GroupLayout.Alignment.LEADING))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(jTextField3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                        .addComponent(jTextField4)
+                        .addComponent(jTextField1)
+                        .addComponent(jTextField8, javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jButton5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(25, 25, 25)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton4)
+                    .addComponent(jButton3)
+                    .addComponent(jButton2)
+                    .addComponent(jButton1))
+                .addGap(0, 50, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -166,35 +138,25 @@ public class Lot extends javax.swing.JFrame {
                     .addComponent(jButton1))
                 .addGap(25, 25, 25)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton2)
+                    .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel8))
+                .addGap(25, 25, 25)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton3)
                     .addComponent(jLabel2)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton2))
+                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(25, 25, 25)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton4)
                     .addComponent(jLabel3)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton3))
-                .addGap(25, 25, 25)
+                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(32, 32, 32)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
                     .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton4))
-                .addGap(25, 25, 25)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(25, 25, 25)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel6)
-                    .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(25, 25, 25)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel7)
-                    .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel4))
                 .addGap(25, 25, 25)
                 .addComponent(jButton5)
-                .addGap(25, 25, 25)
-                .addComponent(jButton6)
                 .addContainerGap(50, Short.MAX_VALUE))
         );
 
@@ -218,75 +180,226 @@ public class Lot extends javax.swing.JFrame {
         return false;
     }
 
+    public double getTotalProductLotCost(int lotId) {
+        double totalMaterialCost = 0.0;
+        double additionalCost = 0.0;
+
+        String materialCostQuery = "SELECT SUM(m.unit_price * pm.quantity_needed) AS total_material_cost "
+                + "FROM ProductMaterial pm "
+                + "JOIN Material m ON pm.material_id = m.material_id "
+                + "WHERE pm.lot_id = ?";
+
+        String additionalCostQuery = "SELECT COALESCE(SUM(psac.cost_amount), 0) AS total_additional_cost "
+                + "FROM ProductSaleAdditionalCost psac "
+                + "WHERE psac.lot_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            // Get total material cost
+            try (PreparedStatement stmt = conn.prepareStatement(materialCostQuery)) {
+                stmt.setInt(1, lotId);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        totalMaterialCost = rs.getDouble("total_material_cost");
+                    }
+                }
+            }
+
+            // Get additional cost
+            try (PreparedStatement stmt = conn.prepareStatement(additionalCostQuery)) {
+                stmt.setInt(1, lotId);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        additionalCost = rs.getDouble("total_additional_cost");
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return totalMaterialCost + additionalCost;
+    }
+
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton4ActionPerformed
-
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton3ActionPerformed
-
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton2ActionPerformed
-
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
             // Example values, replace with actual values from your UI fields or other sources
-            int buyerId = Integer.parseInt(jTextField1.getText().trim()); // Assuming there's a JTextField for buyer ID
-            String name = jTextField2.getText().trim(); // Assuming there's a JTextField for name
-            double totalPrice = Double.parseDouble(totalPriceTextField.getText().trim()); // Assuming there's a JTextField for total price
+            String lotName = jTextField1.getText().trim(); // Assuming there's a JTextField for lot name
+            int quantity = Integer.parseInt(jTextField2.getText().trim()); // Assuming there's a JTextField for quantity
+            int damagedUnits = Integer.parseInt(jTextField3.getText().trim()); // Assuming there's a JTextField for damaged units
 
             // Validate input fields
-            if (buyerId <= 0) {
-                throw new IllegalArgumentException("Buyer ID must be a positive integer.");
+            if (lotName.isEmpty()) {
+                throw new IllegalArgumentException("Lot name cannot be empty.");
             }
-            if (name.isEmpty()) {
-                throw new IllegalArgumentException("Sale name cannot be empty.");
+            if (quantity <= 0) {
+                throw new IllegalArgumentException("Quantity must be a positive number.");
             }
-            if (totalPrice <= 0) {
-                throw new IllegalArgumentException("Total price must be a positive number.");
+            if (damagedUnits < 0 || damagedUnits > quantity) {
+                throw new IllegalArgumentException("Damaged units cannot exceed total quantity.");
             }
 
             // Establish a direct database connection (you can modify this as per your actual connection setup)
             Connection con = DatabaseConnection.getConnection();
 
-            // 1. Insert the LotSale record directly into the table
-            String sqlLotSale = "INSERT INTO LotSale (buyer_id, name, total_price) VALUES (" + buyerId + ", '" + name + "', " + totalPrice + ")";
-            PreparedStatement stmt = con.prepareStatement(sqlLotSale, Statement.RETURN_GENERATED_KEYS);
+            // 1. Insert the ProductLot record directly into the table
+            String sqlProductLot = "INSERT INTO ProductLot (name, quantity, damaged_unit) VALUES ('"
+                    + lotName + "', " + quantity + ", " + damagedUnits + ")";
+            Statement stmt = con.createStatement();
+            stmt.executeUpdate(sqlProductLot, Statement.RETURN_GENERATED_KEYS);
 
-            // 2. Get the generated sale_id from the LotSale table
+            // 2. Get the generated lot_id from the ProductLot table
             ResultSet rs = stmt.getGeneratedKeys();
-            int saleId = 0;
+            int lotId = 0;
             if (rs.next()) {
-                saleId = rs.getInt(1);
+                lotId = rs.getInt(1);
+            }
+            jTextField1.setText(lotId + "");
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid number format. Please check your inputs.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Validation Error", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database error occurred: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        } catch (HeadlessException | JSONException e) {
+            JOptionPane.showMessageDialog(this, "An unexpected error occurred: " + e.getMessage(), "Unknown Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        try {
+            // Example values, replace with actual values from your UI fields or other sources
+            String lotName = jTextField1.getText().trim(); // Assuming there's a JTextField for lot name
+            int quantity = Integer.parseInt(jTextField2.getText().trim()); // Assuming there's a JTextField for quantity
+            int damagedUnits = Integer.parseInt(jTextField3.getText().trim()); // Assuming there's a JTextField for damaged units
+
+            // Validate input fields
+            if (lotName.isEmpty()) {
+                throw new IllegalArgumentException("Lot name cannot be empty.");
+            }
+            if (quantity <= 0) {
+                throw new IllegalArgumentException("Quantity must be a positive number.");
+            }
+            if (damagedUnits < 0 || damagedUnits > quantity) {
+                throw new IllegalArgumentException("Damaged units cannot exceed total quantity.");
             }
 
-            // 3. Insert LotSaleDetails records directly
-            List<JSONObject> lotSaleDetails = new ArrayList<>();
+            // Establish a direct database connection (you can modify this as per your actual connection setup)
+            Connection con = DatabaseConnection.getConnection();
 
-            // Example: Add a sample lot sale detail, replace with actual data from the UI or table
-            JSONObject detail = new JSONObject();
-            detail.put("lot_id", 1); // Replace with actual lot ID from the UI
-            detail.put("quantity_sold", 10); // Replace with actual quantity sold
-            lotSaleDetails.add(detail);
+            // 1. Insert the ProductLot record directly into the table
+            String sqlProductLot = "INSERT INTO ProductLot (name, quantity, damaged_unit) VALUES ('"
+                    + lotName + "', " + quantity + ", " + damagedUnits + ")";
+            Statement stmt = con.createStatement();
+            stmt.executeUpdate(sqlProductLot, Statement.RETURN_GENERATED_KEYS);
 
-            // Insert the details directly into LotSaleDetails
-            for (JSONObject lotSaleDetail : lotSaleDetails) {
-                int lotId = lotSaleDetail.getInt("lot_id");
-                double quantitySold = lotSaleDetail.getDouble("quantity_sold");
+            // 2. Get the generated lot_id from the ProductLot table
+            ResultSet rs = stmt.getGeneratedKeys();
+            int lotId = 0;
+            if (rs.next()) {
+                lotId = rs.getInt(1);
+            }
+            jTextField1.setText(lotId + "");
 
-                String sqlLotSaleDetails = "INSERT INTO LotSaleDetails (sale_id, lot_id, quantity_sold) VALUES (" + saleId + ", " + lotId + ", " + quantitySold + ")";
-                stmt.executeUpdate(sqlLotSaleDetails);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid number format. Please check your inputs.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Validation Error", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database error occurred: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        } catch (HeadlessException | JSONException e) {
+            JOptionPane.showMessageDialog(this, "An unexpected error occurred: " + e.getMessage(), "Unknown Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        try {
+            // Example values, replace with actual values from your UI fields or other sources
+            String lotName = jTextField8.getText().trim(); // Assuming there's a JTextField for lot name
+            int quantity = Integer.parseInt(jTextField2.getText().trim()); // Assuming there's a JTextField for quantity
+            int damagedUnits = Integer.parseInt(jTextField3.getText().trim()); // Assuming there's a JTextField for damaged units
+
+            // Validate input fields
+            if (lotName.isEmpty()) {
+                throw new IllegalArgumentException("Lot name cannot be empty.");
+            }
+            if (quantity <= 0) {
+                throw new IllegalArgumentException("Quantity must be a positive number.");
+            }
+            if (damagedUnits < 0 || damagedUnits > quantity) {
+                throw new IllegalArgumentException("Damaged units cannot exceed total quantity.");
             }
 
-            // 4. Show success message
-            JOptionPane.showMessageDialog(this, "Lot Sale Added Successfully!");
+            // Establish a direct database connection (you can modify this as per your actual connection setup)
+            Connection con = DatabaseConnection.getConnection();
 
-            // Optionally, reset input fields (example)
-            buyerIdTextField.setText("");
-            nameTextField.setText("");
-            totalPriceTextField.setText("");
+            // 1. Insert the ProductLot record directly into the table
+            String sqlProductLot = "INSERT INTO ProductLot (name, quantity, damaged_unit) VALUES ('"
+                    + lotName + "', " + quantity + ", " + damagedUnits + ")";
+            Statement stmt = con.createStatement();
+            stmt.executeUpdate(sqlProductLot, Statement.RETURN_GENERATED_KEYS);
+
+            // 2. Get the generated lot_id from the ProductLot table
+            ResultSet rs = stmt.getGeneratedKeys();
+            int lotId = 0;
+            if (rs.next()) {
+                lotId = rs.getInt(1);
+            }
+            jTextField1.setText(lotId + "");
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid number format. Please check your inputs.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Validation Error", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database error occurred: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        } catch (HeadlessException | JSONException e) {
+            JOptionPane.showMessageDialog(this, "An unexpected error occurred: " + e.getMessage(), "Unknown Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        try {
+            // Example value, replace with actual value from your UI field or other source
+            int lotId = Integer.parseInt(jTextField1.getText().trim()); // Assuming there's a JTextField for lot ID to search
+
+            // Validate input field
+            if (lotId <= 0) {
+                throw new IllegalArgumentException("Lot ID must be a positive number.");
+            }
+
+            // Establish a direct database connection (you can modify this as per your actual connection setup)
+            Connection con = DatabaseConnection.getConnection();
+
+            // 1. Search for the ProductLot record based on the lot_id
+            String sqlSearchProductLot = "SELECT * FROM ProductLot WHERE lot_id = ?";
+            PreparedStatement ps = con.prepareStatement(sqlSearchProductLot);
+
+            // Set the lot_id parameter
+            ps.setInt(1, lotId);
+
+            // Execute the query
+            ResultSet rs = ps.executeQuery();
+
+            // 2. Check if the product lot exists
+            if (rs.next()) {
+                // If the product lot is found, retrieve and display its details
+                String lotName = rs.getString("name");
+                int quantity = rs.getInt("quantity");
+                int damagedUnits = rs.getInt("damaged_unit");
+                String productionDate = rs.getString("production_date");
+
+                // Set the values in the UI fields
+                jTextField8.setText(lotName); // Display Lot Name
+                jTextField2.setText(String.valueOf(quantity)); // Display Quantity
+                jTextField3.setText(String.valueOf(damagedUnits));
+                jTextField4.setText(String.valueOf(getTotalProductLotCost(lotId))); // Display Damaged Units
+
+            } else {
+                // No record found
+                JOptionPane.showMessageDialog(this, "No product lot found with the given ID.", "Search Failed", JOptionPane.WARNING_MESSAGE);
+            }
 
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Invalid number format. Please check your inputs.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -295,9 +408,8 @@ public class Lot extends javax.swing.JFrame {
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Database error occurred: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
-        } catch (Exception e) {
+        } catch (HeadlessException | JSONException e) {
             JOptionPane.showMessageDialog(this, "An unexpected error occurred: " + e.getMessage(), "Unknown Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -319,17 +431,13 @@ public class Lot extends javax.swing.JFrame {
             }
 
             // Open the ManageCost form
-            ManageCost form = new ManageCost(materialId);
+            ManageMaterials form = new ManageMaterials(materialId);
             form.setVisible(true);  // Use setVisible instead of show() (show() is deprecated)
 
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Invalid input. Please enter a numeric Material ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_jButton5ActionPerformed
-
-    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton6ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -387,20 +495,15 @@ public class Lot extends javax.swing.JFrame {
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton6;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
-    private javax.swing.JTextField jTextField6;
-    private javax.swing.JTextField jTextField7;
+    private javax.swing.JTextField jTextField8;
     // End of variables declaration//GEN-END:variables
 }

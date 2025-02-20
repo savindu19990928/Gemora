@@ -11,6 +11,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -156,22 +158,48 @@ public class ManageMaterials extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // Assuming you have JTextFields for input in your form
+// Assuming you have JTextFields for input in your form
         String material = (String) jComboBox1.getSelectedItem();
         int quantity = (int) jSpinner1.getValue();
 
         DefaultTableModel tableModel = (DefaultTableModel) jTable1.getModel();
-        
-        if (0 > quantity) {
+
+        if (quantity <= 0) {
             JOptionPane.showMessageDialog(this, "Quantity must be greater than 0", "Input Error", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         try {
             int materialId = MaterialDAO.getMaterialIdByName(material);
-            String insertQuery = "INSERT INTO ProductMaterial (lot_id, material_id, quantity_needed) VALUES (?, ?, ?)";
 
+            // Step 1: Check available stock
+            String checkStockQuery = "SELECT unit FROM Material WHERE material_id = ?";
+            try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement checkStmt = conn.prepareStatement(checkStockQuery)) {
+
+                checkStmt.setInt(1, materialId);
+                ResultSet rs = checkStmt.executeQuery();
+
+                if (rs.next()) {
+                    int availableStock = rs.getInt("unit");
+
+                    if (availableStock < quantity) {
+                        JOptionPane.showMessageDialog(this,
+                                "Not enough stock available!\nAvailable stock: " + availableStock,
+                                "Stock Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "Material not found!", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(ManageMaterials.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            // Step 2: Insert into ProductMaterial
+            String insertQuery = "INSERT INTO ProductMaterial (lot_id, material_id, quantity_needed) VALUES (?, ?, ?)";
             try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS)) {
+
                 pstmt.setInt(1, product_id);
                 pstmt.setInt(2, materialId);
                 pstmt.setInt(3, quantity);
@@ -183,6 +211,28 @@ public class ManageMaterials extends javax.swing.JFrame {
                         int newCostId = generatedKeys.getInt(1);
                         tableModel.addRow(new Object[]{newCostId, material, quantity});
                     }
+
+                    // Step 3: Decrease stock
+                    String updateStockQuery = "UPDATE Material SET unit = unit - ? WHERE material_id = ?";
+                    try (PreparedStatement updateStmt = conn.prepareStatement(updateStockQuery)) {
+                        updateStmt.setInt(1, quantity);
+                        updateStmt.setInt(2, materialId);
+                        updateStmt.executeUpdate();
+                    }
+
+                    // Step 4: Show remaining stock
+                    String getUpdatedStockQuery = "SELECT unit FROM Material WHERE material_id = ?";
+                    try (PreparedStatement getStockStmt = conn.prepareStatement(getUpdatedStockQuery)) {
+                        getStockStmt.setInt(1, materialId);
+                        ResultSet updatedRs = getStockStmt.executeQuery();
+                        if (updatedRs.next()) {
+                            int newStock = updatedRs.getInt("unit");
+                            JOptionPane.showMessageDialog(this,
+                                    "Stock updated successfully!\nRemaining stock: " + newStock,
+                                    "Stock Update", JOptionPane.INFORMATION_MESSAGE);
+                        }
+                    }
+
                 } else {
                     JOptionPane.showMessageDialog(this, "Error: Material not added!", "Failure", JOptionPane.ERROR_MESSAGE);
                 }
@@ -205,25 +255,63 @@ public class ManageMaterials extends javax.swing.JFrame {
             return;
         }
 
-        int costId = (int) tableModel.getValueAt(selectedRow, 0);
+        int costId = (int) tableModel.getValueAt(selectedRow, 0); // ProductMaterial ID
+        Object materialObj = tableModel.getValueAt(selectedRow, 1);
+        int materialId;
 
-        String deleteQuery = "DELETE FROM ProductMaterial WHERE product_material_id = ?";
+        try {
+            materialId = Integer.parseInt(materialObj.toString()); // Convert String to Integer
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid material ID format!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement(deleteQuery)) {
+        int quantityUsed = (int) tableModel.getValueAt(selectedRow, 2); // Quantity used
 
-            pstmt.setInt(1, costId);
-            int affectedRows = pstmt.executeUpdate();
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            conn.setAutoCommit(false); // Start transaction
 
-            if (affectedRows > 0) {
-                tableModel.removeRow(selectedRow); // Remove row from JTable
-                JOptionPane.showMessageDialog(this, "Material deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(this, "Error: Material not deleted!", "Failure", JOptionPane.ERROR_MESSAGE);
+            // Step 1: Delete record from ProductMaterial
+            String deleteQuery = "DELETE FROM ProductMaterial WHERE product_material_id = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(deleteQuery)) {
+                pstmt.setInt(1, costId);
+                int affectedRows = pstmt.executeUpdate();
+
+                if (affectedRows > 0) {
+                    // Step 2: Restore material stock
+                    String updateStockQuery = "UPDATE Material SET unit = unit + ? WHERE material_id = ?";
+                    try (PreparedStatement updateStmt = conn.prepareStatement(updateStockQuery)) {
+                        updateStmt.setInt(1, quantityUsed);
+                        updateStmt.setInt(2, materialId);
+                        updateStmt.executeUpdate();
+                    }
+
+                    conn.commit(); // Commit transaction
+
+                    // Remove row from JTable
+                    tableModel.removeRow(selectedRow);
+
+                    // Fetch and show updated stock
+                    String getUpdatedStockQuery = "SELECT unit FROM Material WHERE material_id = ?";
+                    try (PreparedStatement getStockStmt = conn.prepareStatement(getUpdatedStockQuery)) {
+                        getStockStmt.setInt(1, materialId);
+                        ResultSet updatedRs = getStockStmt.executeQuery();
+                        if (updatedRs.next()) {
+                            int newStock = updatedRs.getInt("unit");
+                            JOptionPane.showMessageDialog(this,
+                                    "Material deleted successfully!\nStock restored: " + newStock,
+                                    "Success", JOptionPane.INFORMATION_MESSAGE);
+                        }
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "Error: Material not deleted!", "Failure", JOptionPane.ERROR_MESSAGE);
+                }
             }
 
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Database error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
+
     }//GEN-LAST:event_jButton4ActionPerformed
 
     /**

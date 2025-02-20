@@ -5,6 +5,9 @@
 package com.hirun.gemora;
 
 import com.hirun.gemora.dao.BuyerDAO;
+import com.hirun.gemora.dao.SaleDAO;
+import java.awt.HeadlessException;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,6 +16,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -56,14 +61,7 @@ public class Sales extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         jTextField4 = new javax.swing.JTextField();
         jButton4 = new javax.swing.JButton();
-        jLabel5 = new javax.swing.JLabel();
-        jTextField5 = new javax.swing.JTextField();
         jButton5 = new javax.swing.JButton();
-        jLabel6 = new javax.swing.JLabel();
-        jTextField6 = new javax.swing.JTextField();
-        jLabel7 = new javax.swing.JLabel();
-        jTextField7 = new javax.swing.JTextField();
-        jButton8 = new javax.swing.JButton();
         jButton6 = new javax.swing.JButton();
         jComboBox1 = new javax.swing.JComboBox<>();
         jButton7 = new javax.swing.JButton();
@@ -98,7 +96,7 @@ public class Sales extends javax.swing.JFrame {
             }
         });
 
-        jLabel4.setText("Total Cost");
+        jLabel4.setText("Total Payment");
 
         jButton4.setText("Delete");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
@@ -107,23 +105,10 @@ public class Sales extends javax.swing.JFrame {
             }
         });
 
-        jLabel5.setText("Total Income");
-
         jButton5.setText("Manage Other Cost");
         jButton5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton5ActionPerformed(evt);
-            }
-        });
-
-        jLabel6.setText("Payed Amount");
-
-        jLabel7.setText("Total Profit");
-
-        jButton8.setText("Reset");
-        jButton8.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton8ActionPerformed(evt);
             }
         });
 
@@ -148,37 +133,28 @@ public class Sales extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(50, 50, 50)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, 78, Short.MAX_VALUE)
                     .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(25, 25, 25)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(jTextField3, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jTextField4)
+                            .addComponent(jTextField1)
+                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(25, 25, 25)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(jTextField3, javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jTextField4)
-                                    .addComponent(jTextField1)
-                                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(25, 25, 25)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jButton4)
-                                    .addComponent(jButton3)
-                                    .addComponent(jButton2)
-                                    .addComponent(jButton1)
-                                    .addComponent(jButton8)))
-                            .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jButton4)
+                            .addComponent(jButton3)
+                            .addComponent(jButton2)
+                            .addComponent(jButton1))
                         .addGap(0, 50, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(jButton5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                            .addComponent(jTextField7, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jTextField5, javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jButton6, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
                             .addComponent(jButton7, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE))
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
@@ -206,19 +182,6 @@ public class Sales extends javax.swing.JFrame {
                     .addComponent(jLabel4)
                     .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton4))
-                .addGap(25, 25, 25)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton8))
-                .addGap(24, 24, 24)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel6)
-                    .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(25, 25, 25)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel7)
-                    .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(25, 25, 25)
                 .addComponent(jButton5)
                 .addGap(25, 25, 25)
@@ -249,19 +212,104 @@ public class Sales extends javax.swing.JFrame {
     }
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // TODO add your handling code here:
+        try {
+            // Get Sale ID from JTextField (replace jTextFieldSaleId with actual JTextField name)
+            int saleId = Integer.parseInt(jTextField1.getText());
+
+            // 1. Delete Sale Record and Sale Items
+            boolean deleteSuccess = SaleDAO.deleteSale(saleId);
+
+            if (!deleteSuccess) {
+                // Set error message in the JLabel (replace jLabelStatus with actual JLabel name)
+                JOptionPane.showMessageDialog(this, "Failed to delete sale record.", "Error", JOptionPane.ERROR_MESSAGE);
+                return; // Exit if deletion fails
+            }
+
+            // If deletion is successful
+            JOptionPane.showMessageDialog(this, "Sale record successfully deleted.", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid Sale ID format.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (HeadlessException e) {
+            // Generic error handling
+            JOptionPane.showMessageDialog(this, "An unexpected error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
+        try {
+            int saleId = Integer.parseInt(jTextField1.getText());
+            String newSaleName = jTextField3.getText();
+
+            if (newSaleName == null || newSaleName.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Sale name cannot be empty.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // 1. Update Sale Record
+            boolean updateSuccess = SaleDAO.updateSale(saleId, newSaleName);
+
+            if (!updateSuccess) {
+                JOptionPane.showMessageDialog(this, "Failed to update sale record.", "Error", JOptionPane.ERROR_MESSAGE);
+                return; // Exit if update fails
+            }
+
+            // If update is successful
+            JOptionPane.showMessageDialog(this, "Sale record successfully updated.", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid Sale ID format.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (HeadlessException e) {
+            // Generic error handling
+            JOptionPane.showMessageDialog(this, "An unexpected error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
+        // Example inputs (Replace these with actual input from user interface)
+        JSONObject buyerId = BuyerDAO.readBuyerByName((String) jComboBox1.getSelectedItem()); // Assume buyer ID is provided by the user (this could be from a dropdown or input field)
+        String saleName = jTextField3.getText(); // Sale name input
+
+        // Start the sale creation process
+        try {
+            // 1. Create Sale Record
+            boolean saleRecordSuccess = SaleDAO.makeSale(buyerId.getInt("buyer_id"), saleName);
+
+            if (!saleRecordSuccess) {
+                JOptionPane.showMessageDialog(this, "Failed to create sale record.", "Error", JOptionPane.ERROR_MESSAGE);
+                return; // Exit the method if the sale record creation fails
+            }
+            // If everything is successful
+            JOptionPane.showMessageDialog(this, "Sale successfully created and items added.", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (HeadlessException e) {
+            // Generic error handling
+            JOptionPane.showMessageDialog(this, "An unexpected error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+        try {
+            int saleId = Integer.parseInt(jTextField1.getText());
+
+            // 1. Get Sale by ID
+            JSONObject saleDetails = SaleDAO.getSaleById(saleId);
+
+            if (saleDetails == null) {
+                JOptionPane.showMessageDialog(this, "Sale record not found.", "Error", JOptionPane.ERROR_MESSAGE);
+                return; // Exit if sale not found
+            }
+            JSONObject buyer = BuyerDAO.readBuyerById(saleDetails.getInt("buyer_id"));
+            jComboBox1.setSelectedItem(buyer.getString("name"));
+            jTextField3.setText(saleDetails.getString("sale_name"));
+            
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid Sale ID format.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (HeadlessException | JSONException e) {
+            // Generic error handling
+            JOptionPane.showMessageDialog(this, "An unexpected error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
@@ -290,16 +338,34 @@ public class Sales extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton5ActionPerformed
 
-    private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton8ActionPerformed
-
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-        // TODO add your handling code here:
+        String idText = jTextField1.getText().trim();
+
+        if (idText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter a Sale ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            int materialId = Integer.parseInt(idText);
+
+            // Ensure materialId exists in the database before opening the form
+            if (!doesLotIdExist(materialId)) {
+                JOptionPane.showMessageDialog(this, "Sale ID not found. Please enter a valid ID.", "Invalid Sale ID", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // Open the ManageCost form
+            ManagePaymentSale form = new ManagePaymentSale(materialId);
+            form.setVisible(true);
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid input. Please enter a numeric Sale ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton7ActionPerformed
 
     /**
@@ -376,20 +442,13 @@ public class Sales extends javax.swing.JFrame {
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
-    private javax.swing.JButton jButton8;
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
-    private javax.swing.JTextField jTextField6;
-    private javax.swing.JTextField jTextField7;
     // End of variables declaration//GEN-END:variables
 }
