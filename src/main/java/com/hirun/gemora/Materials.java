@@ -263,10 +263,10 @@ public class Materials extends javax.swing.JFrame {
         try {
             int unit = Integer.parseInt(unitText);
             double unitPrice = Double.parseDouble(unitPriceText);
-            MaterialDAO.addMaterial(name, unit, unitPrice, dmg);
+            int result = MaterialDAO.addMaterial(name, unit, unitPrice, dmg);
 
             JOptionPane.showMessageDialog(null, "Material added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-            jTextField1.setText("");
+            jTextField1.setText(result + "");
             jTextField2.setText("");
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(null, "Unit must be a valid number.", "Input Error", JOptionPane.ERROR_MESSAGE);
@@ -283,7 +283,7 @@ public class Materials extends javax.swing.JFrame {
         }
         try {
             double totalRealCost = 0, totalAdditionalCost = 0;
-            JSONObject material = MaterialDAO.readMaterial();
+            JSONObject material = MaterialDAO.getMaterialById(materialId);
             double unitPrice = material.getDouble("unit_price");
             int units = material.getInt("unit");
 
@@ -297,9 +297,9 @@ public class Materials extends javax.swing.JFrame {
             totalRealCost = totalAdditionalCost + (unitPrice * units);
             
             jTextField2.setText(material.getString("name"));
-            jTextField3.setText(String.valueOf(material.getInt("unit")));
+            jTextField3.setText(String.valueOf(units));
             jTextField4.setText(String.valueOf(material.getInt("damaged_unit")));
-            jTextField5.setText(String.valueOf(material.getDouble("unit_price")));
+            jTextField5.setText(String.valueOf(unitPrice));
             jTextField7.setText(totalRealCost + "");
         } catch (HeadlessException | JSONException e) {
             JOptionPane.showMessageDialog(null, "An error occurred while fetching material: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -343,7 +343,7 @@ public class Materials extends javax.swing.JFrame {
 
             // Open the ManageCost form
             ManageCost form = new ManageCost(materialId);
-            form.setVisible(true);  // Use setVisible instead of show() (show() is deprecated)
+            form.setVisible(true);
 
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Invalid input. Please enter a numeric Material ID.", "Input Error", JOptionPane.ERROR_MESSAGE);

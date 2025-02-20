@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.hirun.gemora.dao;
 
 import java.sql.Connection;
@@ -10,120 +6,89 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import com.hirun.gemora.DatabaseConnection;
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONObject;
 
-class ProductLotDAO {
+public class ProductLotDAO {
 
-    public void addProductLot(int productId, String lotNumber, double quantity, Date productionDate, double totalCost) {
-        String sql = "INSERT INTO ProductLot (product_id, lot_number, quantity, production_date, total_cost) VALUES (?, ?, ?, ?, ?)";
-        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, productId);
-            ps.setString(2, lotNumber);
-            ps.setDouble(3, quantity);
-            ps.setDate(4, productionDate);
-            ps.setDouble(5, totalCost);
+    public static int addProductLot(String name, int quantity, int damagedUnit) {
+        String sql = "INSERT INTO ProductLot (name, quantity, damaged_unit) VALUES (?, ?, ?)";
+        int generatedId = -1;
+        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, name);
+            ps.setInt(2, quantity);
+            ps.setInt(3, damagedUnit);
             ps.executeUpdate();
-            System.out.println("Product lot added successfully.");
+
+            ResultSet rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                generatedId = rs.getInt(1);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return generatedId;
     }
 
-    public void updateProductLot(int lotId, double quantity, double totalCost) {
-        String sql = "UPDATE ProductLot SET quantity = ?, total_cost = ? WHERE lot_id = ?";
+    public static boolean updateProductLot(int lotId, String name, int quantity, int damagedUnit) {
+        String sql = "UPDATE ProductLot SET name = ?, quantity = ?, damaged_unit = ? WHERE lot_id = ?";
         try (Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setDouble(1, quantity);
-            ps.setDouble(2, totalCost);
-            ps.setInt(3, lotId);
-            ps.executeUpdate();
-            System.out.println("Product lot updated successfully.");
+            ps.setString(1, name);
+            ps.setInt(2, quantity);
+            ps.setInt(3, damagedUnit);
+            ps.setInt(4, lotId);
+            int affectedRows = ps.executeUpdate();
+            return affectedRows > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
+            return false;
         }
     }
 
-    public void removeProductLot(int lotId) {
+    public static void removeProductLot(int lotId) {
         String sql = "DELETE FROM ProductLot WHERE lot_id = ?";
         try (Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, lotId);
             ps.executeUpdate();
-            System.out.println("Product lot removed successfully.");
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public void readProductLots() {
+    public static List<JSONObject> readProductLots() {
         String sql = "SELECT * FROM ProductLot";
+        List<JSONObject> productLots = new ArrayList<>();
         try (Connection con = DatabaseConnection.getConnection(); Statement stmt = con.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                System.out.println("ID: " + rs.getInt("lot_id") + ", Product ID: " + rs.getInt("product_id") + ", Lot Number: " + rs.getString("lot_number") + ", Quantity: " + rs.getDouble("quantity") + ", Date: " + rs.getDate("production_date") + ", Total Cost: " + rs.getDouble("total_cost"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // ProductLotAdditionalCost handling
-    public void addAdditionalCost(int lotId, String description, double costAmount) {
-        String sql = "INSERT INTO ProductLotAdditionalCost (lot_id, cost_description, cost_amount) VALUES (?, ?, ?)";
-        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, lotId);
-            ps.setString(2, description);
-            ps.setDouble(3, costAmount);
-            ps.executeUpdate();
-            System.out.println("Additional cost added successfully.");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void updateAdditionalCost(int costId, String description, double costAmount) {
-        String sql = "UPDATE ProductLotAdditionalCost SET cost_description = ?, cost_amount = ? WHERE cost_id = ?";
-        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, description);
-            ps.setDouble(2, costAmount);
-            ps.setInt(3, costId);
-            ps.executeUpdate();
-            System.out.println("Additional cost updated successfully.");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void removeAdditionalCost(int costId) {
-        String sql = "DELETE FROM ProductLotAdditionalCost WHERE cost_id = ?";
-        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, costId);
-            ps.executeUpdate();
-            System.out.println("Additional cost removed successfully.");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public List<JSONObject> readAdditionalCost() {
-        String sql = "SELECT * FROM ProductLotAdditionalCost";
-        List<JSONObject> jsonList = new ArrayList<>(); // Create a list to hold the JSON objects
-
-        try (Connection con = DatabaseConnection.getConnection(); Statement stmt = con.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
-
             while (rs.next()) {
                 JSONObject json = new JSONObject();
-                json.put("cost_id", rs.getInt("cost_id"));
                 json.put("lot_id", rs.getInt("lot_id"));
-                json.put("cost_description", rs.getString("cost_description"));
-                json.put("cost_amount", rs.getDouble("cost_amount"));
-
-                jsonList.add(json); // Add the JSON object to the list
+                json.put("product_id", rs.getInt("product_id"));
+                json.put("name", rs.getString("name"));
+                json.put("quantity", rs.getInt("quantity"));
+                json.put("damaged_unit", rs.getInt("damaged_unit"));
+                productLots.add(json);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return productLots;
+    }
 
-        return jsonList; // Return the list of JSON objects
+    public static JSONObject readProductLotById(int lotId) {
+        String sql = "SELECT * FROM ProductLot WHERE lot_id = ?";
+        JSONObject json = new JSONObject();
+        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, lotId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                json.put("lot_id", rs.getInt("lot_id"));
+                json.put("name", rs.getString("name"));
+                json.put("quantity", rs.getInt("quantity"));
+                json.put("damaged_unit", rs.getInt("damaged_unit"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return json;
     }
 }

@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.hirun.gemora.dao;
 
 import java.sql.PreparedStatement;
@@ -17,30 +13,68 @@ import java.sql.Statement;
 
 class LotSaleDAO {
 
-    public void addLotSale(int buyerId, int lotId, double quantitySold, double pricePerUnit, double totalPrice, Date saleDate) {
-        String sql = "INSERT INTO LotSale (buyer_id, lot_id, quantity_sold, price_per_unit, total_price, sale_date) VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, buyerId);
-            ps.setInt(2, lotId);
-            ps.setDouble(3, quantitySold);
-            ps.setDouble(4, pricePerUnit);
-            ps.setDouble(5, totalPrice);
-            ps.setDate(6, saleDate);
-            ps.executeUpdate();
-            System.out.println("Lot sale added successfully.");
+    public void addLotSale(int buyerId, String name, double totalPrice, List<JSONObject> lotSaleDetails) {
+        String sqlLotSale = "INSERT INTO LotSale (buyer_id, name, total_price) VALUES (?, ?, ?)";
+        try (Connection con = DatabaseConnection.getConnection()) {
+            // Insert the sale record into LotSale
+            PreparedStatement psLotSale = con.prepareStatement(sqlLotSale, Statement.RETURN_GENERATED_KEYS);
+            psLotSale.setInt(1, buyerId);
+            psLotSale.setString(2, name);
+            psLotSale.setDouble(3, totalPrice);
+            psLotSale.executeUpdate();
+
+            // Get the generated sale_id from the LotSale table
+            ResultSet rs = psLotSale.getGeneratedKeys();
+            int saleId = 0;
+            if (rs.next()) {
+                saleId = rs.getInt(1);
+            }
+
+            // Insert records into LotSaleDetails using JSON objects
+            String sqlLotSaleDetails = "INSERT INTO LotSaleDetails (sale_id, lot_id, quantity_sold) VALUES (?, ?, ?)";
+            PreparedStatement psLotSaleDetails = con.prepareStatement(sqlLotSaleDetails);
+
+            for (JSONObject detail : lotSaleDetails) {
+                psLotSaleDetails.setInt(1, saleId);
+                psLotSaleDetails.setInt(2, detail.getInt("lot_id"));
+                psLotSaleDetails.setDouble(3, detail.getDouble("quantity_sold"));
+                psLotSaleDetails.addBatch();
+            }
+
+            psLotSaleDetails.executeBatch(); // Execute all the batch inserts
+            System.out.println("Lot sale and details added successfully.");
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public void updateLotSale(int saleId, double quantitySold, double pricePerUnit, double totalPrice) {
-        String sql = "UPDATE LotSale SET quantity_sold = ?, price_per_unit = ?, total_price = ? WHERE sale_id = ?";
-        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setDouble(1, quantitySold);
-            ps.setDouble(2, pricePerUnit);
-            ps.setDouble(3, totalPrice);
-            ps.setInt(4, saleId);
-            ps.executeUpdate();
+    public void updateLotSale(int saleId, double totalPrice, List<JSONObject> lotSaleDetails) {
+        String sqlLotSale = "UPDATE LotSale SET total_price = ? WHERE sale_id = ?";
+        try (Connection con = DatabaseConnection.getConnection()) {
+            // Update the LotSale record
+            PreparedStatement psLotSale = con.prepareStatement(sqlLotSale);
+            psLotSale.setDouble(1, totalPrice);
+            psLotSale.setInt(2, saleId);
+            psLotSale.executeUpdate();
+
+            // Remove existing details and insert updated ones
+            String deleteLotSaleDetails = "DELETE FROM LotSaleDetails WHERE sale_id = ?";
+            PreparedStatement psDelete = con.prepareStatement(deleteLotSaleDetails);
+            psDelete.setInt(1, saleId);
+            psDelete.executeUpdate();
+
+            // Insert new details using JSON objects
+            String sqlLotSaleDetails = "INSERT INTO LotSaleDetails (sale_id, lot_id, quantity_sold) VALUES (?, ?, ?)";
+            PreparedStatement psLotSaleDetails = con.prepareStatement(sqlLotSaleDetails);
+
+            for (JSONObject detail : lotSaleDetails) {
+                psLotSaleDetails.setInt(1, saleId);
+                psLotSaleDetails.setInt(2, detail.getInt("lot_id"));
+                psLotSaleDetails.setDouble(3, detail.getDouble("quantity_sold"));
+                psLotSaleDetails.addBatch();
+            }
+
+            psLotSaleDetails.executeBatch(); // Execute the batch insert
             System.out.println("Lot sale updated successfully.");
         } catch (SQLException e) {
             e.printStackTrace();
@@ -63,14 +97,11 @@ class LotSaleDAO {
         List<JSONObject> jsonList = new ArrayList<>(); // List to hold the JSON objects
 
         try (Connection con = DatabaseConnection.getConnection(); Statement stmt = con.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
-
             while (rs.next()) {
                 JSONObject json = new JSONObject();
                 json.put("sale_id", rs.getInt("sale_id"));
                 json.put("buyer_id", rs.getInt("buyer_id"));
-                json.put("lot_id", rs.getInt("lot_id"));
-                json.put("quantity_sold", rs.getDouble("quantity_sold"));
-                json.put("price_per_unit", rs.getDouble("price_per_unit"));
+                json.put("name", rs.getString("name"));
                 json.put("total_price", rs.getDouble("total_price"));
                 json.put("sale_date", rs.getDate("sale_date").toString()); // Converting date to string
 

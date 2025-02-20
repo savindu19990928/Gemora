@@ -234,8 +234,6 @@ public class ManagePayment extends javax.swing.JFrame {
 
                         // Add new payment details to table
                         tableModel.addRow(new Object[]{newPaymentId, amountPaid, paymentDate, paymentMethod, description});
-
-                        JOptionPane.showMessageDialog(this, "Payment added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
                     }
                 } else {
                     JOptionPane.showMessageDialog(this, "Error: Payment not added!", "Failure", JOptionPane.ERROR_MESSAGE);

@@ -28,7 +28,7 @@ public class ManageCost extends javax.swing.JFrame {
     public ManageCost(int materialId) {
         this.materialId = materialId;
         initComponents();
-        String query = "SELECT cost_id, material_id, cost_description, cost_amount FROM MaterialAdditionalCost WHERE material_id = ?";
+        String query = "SELECT cost_id, title, cost_description, cost_amount FROM MaterialAdditionalCost WHERE material_id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
 
@@ -40,12 +40,12 @@ public class ManageCost extends javax.swing.JFrame {
                 tableModel.setRowCount(0);
                 while (rs.next()) {
                     int costId = rs.getInt("cost_id");
-                    String materialIdStr = rs.getString("material_id");  // Fetch material_id if needed
+                    String title = rs.getString("title");
                     String description = rs.getString("cost_description");
                     double amount = rs.getDouble("cost_amount");
 
                     // Add row data to the table model
-                    tableModel.addRow(new Object[]{costId, materialIdStr, description, amount});
+                    tableModel.addRow(new Object[]{costId, title, description, amount});
                 }
             }
 
@@ -205,9 +205,8 @@ public class ManageCost extends javax.swing.JFrame {
                     ResultSet generatedKeys = pstmt.getGeneratedKeys();
                     if (generatedKeys.next()) {
                         int newCostId = generatedKeys.getInt(1);
-                        tableModel.addRow(new Object[]{newCostId, materialId, description, amount});
+                        tableModel.addRow(new Object[]{newCostId, title, description, amount});
                     }
-                    JOptionPane.showMessageDialog(this, "Row added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
                 } else {
                     JOptionPane.showMessageDialog(this, "Error: Row not added!", "Failure", JOptionPane.ERROR_MESSAGE);
                 }

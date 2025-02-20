@@ -7,21 +7,38 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MaterialDAO {
 
-    public static void addMaterial(String name, int unit, double unitPrice, int dmg) {
-        String sql = "INSERT INTO Material (name, unit, unit_price) VALUES (?, ?, ?)";
-        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+    public static int addMaterial(String name, int unit, double unitPrice, int dmg) {
+        String sql = "INSERT INTO Material (name, unit, unit_price, damaged_unit) VALUES (?, ?, ?, ?)";
+        int generatedId = -1;
+
+        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
             ps.setString(1, name);
             ps.setInt(2, unit);
             ps.setDouble(3, unitPrice);
             ps.setInt(4, dmg);
-            ps.executeUpdate();
-            System.out.println("Material added successfully.");
+
+            int affectedRows = ps.executeUpdate();
+
+            if (affectedRows > 0) {
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        generatedId = rs.getInt(1); // Retrieve generated ID
+                    }
+                }
+            }
+
+            System.out.println("Material added successfully with ID: " + generatedId);
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        return generatedId;
     }
 
     public static void updateMaterial(int materialId, String name, int unit, int dmg, double unitPrice) {
@@ -50,25 +67,64 @@ public class MaterialDAO {
         }
     }
 
-    public static JSONObject readMaterial() {
-        String sql = "SELECT * FROM Material LIMIT 1"; // Ensure only one record is fetched
-        JSONObject json = new JSONObject();
+    public static List<String> readAllMaterials() {
+        String sql = "SELECT name FROM Material"; // Fetch only the names
+        List<String> nameList = new ArrayList<>();
 
         try (Connection con = DatabaseConnection.getConnection(); Statement stmt = con.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
 
-            if (rs.next()) { // Fetch only one row
-                json.put("material_id", rs.getInt("material_id"));
-                json.put("name", rs.getString("name"));
-                json.put("unit", rs.getInt("unit"));
-                json.put("unit_price", rs.getDouble("unit_price"));
-                json.put("damaged_unit", rs.getInt("damaged_unit"));
-                json.put("created_at", rs.getTimestamp("created_at"));
+            while (rs.next()) {
+                nameList.add(rs.getString("name"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return json; // Return the JSON object
+        return nameList; // Return the JSON array
+    }
+
+    public static JSONObject getMaterialById(int materialId) {
+        String sql = "SELECT * FROM Material WHERE material_id = ?"; // Fetch material by ID
+        JSONObject material = new JSONObject();
+
+        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            pstmt.setInt(1, materialId); // Set the ID parameter
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    material.put("material_id", rs.getInt("material_id"));
+                    material.put("name", rs.getString("name"));
+                    material.put("unit", rs.getInt("unit"));
+                    material.put("unit_price", rs.getDouble("unit_price"));
+                    material.put("damaged_unit", rs.getInt("damaged_unit"));
+                    material.put("created_at", rs.getTimestamp("created_at"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return material; // Returns the material details as JSON
+    }
+
+    public static Integer getMaterialIdByName(String materialName) {
+        String sql = "SELECT material_id FROM Material WHERE name = ?";
+        Integer materialId = null;
+
+        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+            pstmt.setString(1, materialName); // Set the name parameter
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    materialId = rs.getInt("material_id"); // Fetch the ID
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return materialId;
     }
 
 }

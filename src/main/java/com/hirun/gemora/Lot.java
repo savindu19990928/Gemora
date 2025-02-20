@@ -4,6 +4,16 @@
  */
 package com.hirun.gemora;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JOptionPane;
+import org.json.JSONObject;
+
 /**
  *
  * @author User
@@ -100,6 +110,11 @@ public class Lot extends javax.swing.JFrame {
         jLabel7.setText("Total Profit");
 
         jButton6.setText("Manage Payments");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -186,6 +201,23 @@ public class Lot extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private boolean doesLotIdExist(int lot_id) {
+        String query = "SELECT COUNT(*) FROM ProductLot WHERE lot_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, lot_id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return false;
+    }
+
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton4ActionPerformed
@@ -199,12 +231,105 @@ public class Lot extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+        try {
+            // Example values, replace with actual values from your UI fields or other sources
+            int buyerId = Integer.parseInt(jTextField1.getText().trim()); // Assuming there's a JTextField for buyer ID
+            String name = jTextField2.getText().trim(); // Assuming there's a JTextField for name
+            double totalPrice = Double.parseDouble(totalPriceTextField.getText().trim()); // Assuming there's a JTextField for total price
+
+            // Validate input fields
+            if (buyerId <= 0) {
+                throw new IllegalArgumentException("Buyer ID must be a positive integer.");
+            }
+            if (name.isEmpty()) {
+                throw new IllegalArgumentException("Sale name cannot be empty.");
+            }
+            if (totalPrice <= 0) {
+                throw new IllegalArgumentException("Total price must be a positive number.");
+            }
+
+            // Establish a direct database connection (you can modify this as per your actual connection setup)
+            Connection con = DatabaseConnection.getConnection();
+
+            // 1. Insert the LotSale record directly into the table
+            String sqlLotSale = "INSERT INTO LotSale (buyer_id, name, total_price) VALUES (" + buyerId + ", '" + name + "', " + totalPrice + ")";
+            PreparedStatement stmt = con.prepareStatement(sqlLotSale, Statement.RETURN_GENERATED_KEYS);
+
+            // 2. Get the generated sale_id from the LotSale table
+            ResultSet rs = stmt.getGeneratedKeys();
+            int saleId = 0;
+            if (rs.next()) {
+                saleId = rs.getInt(1);
+            }
+
+            // 3. Insert LotSaleDetails records directly
+            List<JSONObject> lotSaleDetails = new ArrayList<>();
+
+            // Example: Add a sample lot sale detail, replace with actual data from the UI or table
+            JSONObject detail = new JSONObject();
+            detail.put("lot_id", 1); // Replace with actual lot ID from the UI
+            detail.put("quantity_sold", 10); // Replace with actual quantity sold
+            lotSaleDetails.add(detail);
+
+            // Insert the details directly into LotSaleDetails
+            for (JSONObject lotSaleDetail : lotSaleDetails) {
+                int lotId = lotSaleDetail.getInt("lot_id");
+                double quantitySold = lotSaleDetail.getDouble("quantity_sold");
+
+                String sqlLotSaleDetails = "INSERT INTO LotSaleDetails (sale_id, lot_id, quantity_sold) VALUES (" + saleId + ", " + lotId + ", " + quantitySold + ")";
+                stmt.executeUpdate(sqlLotSaleDetails);
+            }
+
+            // 4. Show success message
+            JOptionPane.showMessageDialog(this, "Lot Sale Added Successfully!");
+
+            // Optionally, reset input fields (example)
+            buyerIdTextField.setText("");
+            nameTextField.setText("");
+            totalPriceTextField.setText("");
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid number format. Please check your inputs.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Validation Error", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database error occurred: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "An unexpected error occurred: " + e.getMessage(), "Unknown Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        // TODO add your handling code here:
+        String idText = jTextField1.getText().trim();
+
+        if (idText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter a Material ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            int materialId = Integer.parseInt(idText);
+
+            // Ensure materialId exists in the database before opening the form
+            if (!doesLotIdExist(materialId)) {
+                JOptionPane.showMessageDialog(this, "Material ID not found. Please enter a valid ID.", "Invalid Material ID", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // Open the ManageCost form
+            ManageCost form = new ManageCost(materialId);
+            form.setVisible(true);  // Use setVisible instead of show() (show() is deprecated)
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid input. Please enter a numeric Material ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton5ActionPerformed
+
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton6ActionPerformed
 
     /**
      * @param args the command line arguments

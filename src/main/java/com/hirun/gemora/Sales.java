@@ -4,17 +4,36 @@
  */
 package com.hirun.gemora;
 
+import com.hirun.gemora.dao.BuyerDAO;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JOptionPane;
+import org.json.JSONObject;
+
 /**
  *
  * @author User
  */
 public class Sales extends javax.swing.JFrame {
 
+    DefaultComboBoxModel<String> cModel;
+
     /**
      * Creates new form Shops
      */
     public Sales() {
         initComponents();
+        List<JSONObject> buyers = BuyerDAO.readBuyers();
+        List<String> buyerNames = buyers.stream()
+                .map(json -> json.getString("name"))
+                .collect(Collectors.toList());
+        cModel = new DefaultComboBoxModel<>(buyerNames.toArray(String[]::new));
+        jComboBox1.setModel(cModel);
     }
 
     /**
@@ -61,9 +80,9 @@ public class Sales extends javax.swing.JFrame {
             }
         });
 
-        jLabel2.setText("Shop");
+        jLabel2.setText("Buyer");
 
-        jLabel3.setText("Description");
+        jLabel3.setText("Name");
 
         jButton2.setText("Add");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
@@ -114,8 +133,6 @@ public class Sales extends javax.swing.JFrame {
                 jButton6ActionPerformed(evt);
             }
         });
-
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Shop 1", "Shop 2", "Shop 3", "Shop 4" }));
 
         jButton7.setText("Manage Payment");
         jButton7.addActionListener(new java.awt.event.ActionListener() {
@@ -214,6 +231,23 @@ public class Sales extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private boolean doesLotIdExist(int materialId) {
+        String query = "SELECT COUNT(*) FROM LotSale WHERE sale_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, materialId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0; // If count > 0, the ID exists
+                }
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return false;
+    }
+
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton4ActionPerformed
@@ -231,7 +265,29 @@ public class Sales extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        // TODO add your handling code here:
+        String idText = jTextField1.getText().trim();
+
+        if (idText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter a Sale ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            int materialId = Integer.parseInt(idText);
+
+            // Ensure materialId exists in the database before opening the form
+            if (!doesLotIdExist(materialId)) {
+                JOptionPane.showMessageDialog(this, "Sale ID not found. Please enter a valid ID.", "Invalid Sale ID", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // Open the ManageCost form
+            ManageCostSale form = new ManageCostSale(materialId);
+            form.setVisible(true);
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid input. Please enter a numeric Sale ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed

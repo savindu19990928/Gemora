@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.hirun.gemora.dao;
 
 import java.sql.PreparedStatement;
@@ -17,13 +13,16 @@ import java.sql.Statement;
 
 class PaymentFromBuyerDAO {
 
-    public void addPayment(int buyerId, double amountReceived, Date paymentDate, String paymentMethod) {
-        String sql = "INSERT INTO PaymentFromBuyer (buyer_id, amount_received, payment_date, payment_method) VALUES (?, ?, ?, ?)";
+    // Method to add a payment
+    public void addPayment(int buyerId, int saleId, double amountReceived, Date paymentDate, String paymentMethod, String description) {
+        String sql = "INSERT INTO PaymentFromBuyer (buyer_id, sale_id, amount_received, payment_date, payment_method, description) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, buyerId);
-            ps.setDouble(2, amountReceived);
-            ps.setDate(3, paymentDate);
-            ps.setString(4, paymentMethod);
+            ps.setInt(2, saleId);  // Add the sale_id field here
+            ps.setDouble(3, amountReceived);
+            ps.setDate(4, paymentDate);
+            ps.setString(5, paymentMethod);
+            ps.setString(6, description);  // Add the description field here
             ps.executeUpdate();
             System.out.println("Payment added successfully.");
         } catch (SQLException e) {
@@ -31,12 +30,14 @@ class PaymentFromBuyerDAO {
         }
     }
 
-    public void updatePayment(int paymentId, double amountReceived, String paymentMethod) {
-        String sql = "UPDATE PaymentFromBuyer SET amount_received = ?, payment_method = ? WHERE buyer_payment_id = ?";
+    // Method to update a payment
+    public void updatePayment(int paymentId, double amountReceived, String paymentMethod, String description) {
+        String sql = "UPDATE PaymentFromBuyer SET amount_received = ?, payment_method = ?, description = ? WHERE buyer_payment_id = ?";
         try (Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setDouble(1, amountReceived);
             ps.setString(2, paymentMethod);
-            ps.setInt(3, paymentId);
+            ps.setString(3, description);  // Update the description field
+            ps.setInt(4, paymentId);
             ps.executeUpdate();
             System.out.println("Payment updated successfully.");
         } catch (SQLException e) {
@@ -44,6 +45,7 @@ class PaymentFromBuyerDAO {
         }
     }
 
+    // Method to remove a payment
     public void removePayment(int paymentId) {
         String sql = "DELETE FROM PaymentFromBuyer WHERE buyer_payment_id = ?";
         try (Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
@@ -55,6 +57,7 @@ class PaymentFromBuyerDAO {
         }
     }
 
+    // Method to read all payments
     public List<JSONObject> readPayments() {
         String sql = "SELECT * FROM PaymentFromBuyer";
         List<JSONObject> jsonList = new ArrayList<>(); // List to hold the JSON objects
@@ -65,9 +68,11 @@ class PaymentFromBuyerDAO {
                 JSONObject json = new JSONObject();
                 json.put("buyer_payment_id", rs.getInt("buyer_payment_id"));
                 json.put("buyer_id", rs.getInt("buyer_id"));
+                json.put("sale_id", rs.getInt("sale_id"));  // Added the sale_id field here
                 json.put("amount_received", rs.getDouble("amount_received"));
                 json.put("payment_date", rs.getDate("payment_date").toString()); // Converting date to String
                 json.put("payment_method", rs.getString("payment_method"));
+                json.put("description", rs.getString("description"));  // Added description field
 
                 jsonList.add(json); // Add the JSON object to the list
             }
