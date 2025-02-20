@@ -6,9 +6,6 @@ package com.hirun.gemora;
 
 import com.hirun.gemora.dao.ProductLotDAO;
 import com.hirun.gemora.dao.LotSaleDetailsDAO;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.swing.DefaultComboBoxModel;
@@ -31,7 +28,7 @@ public class ManageLots extends javax.swing.JFrame {
      * @param sale_id
      */
     public ManageLots(int sale_id) {
-        this.sale_id = this.sale_id;
+        this.sale_id = sale_id;
         initComponents();
 
         DefaultTableModel tableModel = (DefaultTableModel) jTable1.getModel();
@@ -180,23 +177,12 @@ public class ManageLots extends javax.swing.JFrame {
 
         int id = (int) tableModel.getValueAt(selectedRow, 0);
 
-        String deleteQuery = "DELETE FROM PaymentToSupplier WHERE supplier_payment_id = ?";
-
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement(deleteQuery)) {
-
-            pstmt.setInt(1, id);
-            int affectedRows = pstmt.executeUpdate();
-
-            if (affectedRows > 0) {
-                tableModel.removeRow(selectedRow); // Remove row from JTable
-                JOptionPane.showMessageDialog(this, "Row deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(this, "Error: Row not deleted!", "Failure", JOptionPane.ERROR_MESSAGE);
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Database error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        boolean affectedRows = LotSaleDetailsDAO.deleteLotSaleDetail(id);
+        if (affectedRows) {
+            tableModel.removeRow(selectedRow); // Remove row from JTable
+            JOptionPane.showMessageDialog(this, "Row deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, "Error: Row not deleted!", "Failure", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_jButton4ActionPerformed
 

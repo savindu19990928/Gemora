@@ -74,21 +74,26 @@ public class ProductLotDAO {
     }
 
     public static void loadProductLotsIntoTable(DefaultTableModel tableModel, int saleId) {
-        String query = "SELECT pl.lot_id, pl.name, pl.quantity, pl.damaged_unit, pl.production_date "
-                + "FROM ProductLot pl "
-                + "JOIN LotSaleDetails lsd ON pl.lot_id = lsd.lot_id "
+        String query = "SELECT pl.lot_id, pl.name, lsd.quantity_sold, lsd.item_Price "
+                + "FROM LotSaleDetails lsd "
+                + "JOIN LotSale ls ON lsd.sale_id = ls.sale_id "
+                + "JOIN ProductLot pl ON lsd.lot_sale_id = pl.lot_id "
                 + "WHERE lsd.sale_id = ?";
+
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, saleId);
+
             try (ResultSet rs = stmt.executeQuery()) {
                 tableModel.setRowCount(0);
+
                 while (rs.next()) {
                     int id = rs.getInt("lot_id");
                     String name = rs.getString("name");
-                    int quantity = rs.getInt("quantity");
-                    double totalCost = ((Number) getTotalLotCost(id)).doubleValue(); // Fix applied
+                    int quantitySold = rs.getInt("quantity_sold");
+                    double itemPrice = rs.getDouble("item_Price");
+                    double totalCost = quantitySold * itemPrice; // Calculating total cost correctly
 
-                    tableModel.addRow(new Object[]{id, name, quantity, totalCost});
+                    tableModel.addRow(new Object[]{id, name, quantitySold, totalCost});
                 }
             }
         } catch (SQLException e) {

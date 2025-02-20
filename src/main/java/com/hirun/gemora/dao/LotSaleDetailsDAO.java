@@ -10,7 +10,7 @@ public class LotSaleDetailsDAO {
     // Add a new lot sale detail
     public static boolean addLotSaleDetail(int saleId, int lotId, int quantitySold, double itemPrice) {
         // SQL query to check if saleId exists in the LotSales table
-        String checkSaleExistsSql = "SELECT sale_id FROM LotSales WHERE sale_id = ?";
+        String checkSaleExistsSql = "SELECT sale_id FROM LotSale WHERE sale_id = ?";
 
         // SQL query to insert into LotSaleDetails table
         String insertSql = "INSERT INTO LotSaleDetails (sale_id, lot_id, quantity_sold, item_Price) VALUES (?, ?, ?, ?)";
