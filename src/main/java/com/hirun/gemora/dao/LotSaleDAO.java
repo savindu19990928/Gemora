@@ -2,7 +2,6 @@ package com.hirun.gemora.dao;
 
 import java.sql.PreparedStatement;
 import com.hirun.gemora.DatabaseConnection;
-import java.sql.Date;
 import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,16 +10,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-class LotSaleDAO {
+public class LotSaleDAO {
 
-    public void addLotSale(int buyerId, String name, double totalPrice, List<JSONObject> lotSaleDetails) {
-        String sqlLotSale = "INSERT INTO LotSale (buyer_id, name, total_price) VALUES (?, ?, ?)";
+    public void addLotSale(int buyerId, String name, List<JSONObject> lotSaleDetails) {
+        String sqlLotSale = "INSERT INTO LotSale (buyer_id, name) VALUES (?, ?)";
         try (Connection con = DatabaseConnection.getConnection()) {
             // Insert the sale record into LotSale
             PreparedStatement psLotSale = con.prepareStatement(sqlLotSale, Statement.RETURN_GENERATED_KEYS);
             psLotSale.setInt(1, buyerId);
             psLotSale.setString(2, name);
-            psLotSale.setDouble(3, totalPrice);
             psLotSale.executeUpdate();
 
             // Get the generated sale_id from the LotSale table
