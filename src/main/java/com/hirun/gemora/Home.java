@@ -36,9 +36,11 @@ public class Home extends javax.swing.JFrame {
         jMenuItem8 = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
         jMenuItem9 = new javax.swing.JMenuItem();
+        jMenuItem17 = new javax.swing.JMenuItem();
         jMenuItem11 = new javax.swing.JMenuItem();
         jMenuItem12 = new javax.swing.JMenuItem();
         jMenuItem10 = new javax.swing.JMenuItem();
+        jMenuItem16 = new javax.swing.JMenuItem();
         jMenuItem15 = new javax.swing.JMenuItem();
         jMenuItem13 = new javax.swing.JMenuItem();
         jMenu4 = new javax.swing.JMenu();
@@ -98,17 +100,23 @@ public class Home extends javax.swing.JFrame {
 
         jMenu3.setText("Reports");
 
-        jMenuItem9.setText("Finance Report");
+        jMenuItem9.setText("Income Report");
         jMenu3.add(jMenuItem9);
+
+        jMenuItem17.setText("Cost Report");
+        jMenu3.add(jMenuItem17);
 
         jMenuItem11.setText("Pending Payment Report (Sales)");
         jMenu3.add(jMenuItem11);
 
-        jMenuItem12.setText("Pending Payment Report (Expense)");
+        jMenuItem12.setText("Pending Payment Report (Purchases)");
         jMenu3.add(jMenuItem12);
 
-        jMenuItem10.setText("Shop Report");
+        jMenuItem10.setText("Supplier Report");
         jMenu3.add(jMenuItem10);
+
+        jMenuItem16.setText("Buyer Report");
+        jMenu3.add(jMenuItem16);
 
         jMenuItem15.setText("Lot Report");
         jMenu3.add(jMenuItem15);
@@ -192,6 +200,8 @@ public class Home extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem13;
     private javax.swing.JMenuItem jMenuItem14;
     private javax.swing.JMenuItem jMenuItem15;
+    private javax.swing.JMenuItem jMenuItem16;
+    private javax.swing.JMenuItem jMenuItem17;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem6;
