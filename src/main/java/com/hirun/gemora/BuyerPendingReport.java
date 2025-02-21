@@ -4,6 +4,7 @@
  */
 package com.hirun.gemora;
 
+import java.io.InputStream;
 import java.sql.SQLException;
 import javax.swing.JFrame;
 import net.sf.jasperreports.engine.JRException;
@@ -21,21 +22,21 @@ public class BuyerPendingReport extends javax.swing.JFrame {
 
     /**
      * Creates new form CostReport
+     *
      * @throws java.sql.SQLException
      * @throws net.sf.jasperreports.engine.JRException
      */
     public BuyerPendingReport() throws SQLException, JRException {
         initComponents();
-        String reportPath = getClass().getResource("/reports/BuyerPending.jasper").getPath();
-        JasperReport jasperReport = (JasperReport) JRLoader.loadObjectFromFile(reportPath);
-        JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, null, DatabaseConnection.getConnection());
-
-        JRViewer viewer = new JRViewer(jasperPrint);
+        InputStream reportPath = getClass().getClassLoader().getResourceAsStream("reports/BuyerPending.jasper");
+        JasperPrint jasperReport = JasperFillManager.fillReport(reportPath, null, DatabaseConnection.getConnection());
+        JRViewer viewer = new JRViewer(jasperReport);
         JFrame frame = new JFrame("Jasper Report Viewer");
         frame.getContentPane().add(viewer);
         frame.setSize(800, 600);
         frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         frame.setVisible(true);
+
     }
 
     /**

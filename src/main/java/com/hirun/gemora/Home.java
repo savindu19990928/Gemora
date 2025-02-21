@@ -4,10 +4,21 @@
  */
 package com.hirun.gemora;
 
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.GraphicsEnvironment;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFrame;
 import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.swing.JRViewer;
 
 /**
  *
@@ -253,83 +264,155 @@ public class Home extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem13ActionPerformed
 
     private void jMenuItem9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem9ActionPerformed
-        IncomeReport form = null;
         try {
-            form = new IncomeReport();
-        } catch (JRException | SQLException ex) {
+            InputStream fontStream = getClass().getClassLoader().getResourceAsStream("DejaVuSans.ttf");
+            Font font = Font.createFont(Font.TRUETYPE_FONT, fontStream);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(font);
+            InputStream reportPath = getClass().getClassLoader().getResourceAsStream("Incomes.jasper");
+            JasperPrint jasperReport = JasperFillManager.fillReport(reportPath, null, DatabaseConnection.getConnection());
+            JRViewer viewer = new JRViewer(jasperReport);
+            JFrame frame = new JFrame("Jasper Report Viewer");
+            frame.getContentPane().add(viewer);
+            frame.setSize(800, 600);
+            frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+            frame.setVisible(true);
+        } catch (SQLException | JRException | FontFormatException | IOException ex) {
             Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
         }
-        form.setVisible(true);
     }//GEN-LAST:event_jMenuItem9ActionPerformed
 
     private void jMenuItem17ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem17ActionPerformed
-        CostReport form = null;
         try {
-            form = new CostReport();
-        } catch (JRException | SQLException ex) {
+            InputStream fontStream = getClass().getClassLoader().getResourceAsStream("DejaVuSans.ttf");
+            Font font = Font.createFont(Font.TRUETYPE_FONT, fontStream);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(font);
+            InputStream reportPath = getClass().getClassLoader().getResourceAsStream("Costs.jasper");
+            JasperPrint jasperReport = JasperFillManager.fillReport(reportPath, null, DatabaseConnection.getConnection());
+            JRViewer viewer = new JRViewer(jasperReport);
+            JFrame frame = new JFrame("Jasper Report Viewer");
+            frame.getContentPane().add(viewer);
+            frame.setSize(800, 600);
+            frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+            frame.setVisible(true);
+        } catch (SQLException | JRException | FontFormatException | IOException ex) {
             Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
         }
-        form.setVisible(true);
     }//GEN-LAST:event_jMenuItem17ActionPerformed
 
     private void jMenuItem11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem11ActionPerformed
-        BuyerPendingReport form = null;
         try {
-            form = new BuyerPendingReport();
-        } catch (JRException | SQLException ex) {
+            InputStream fontStream = getClass().getClassLoader().getResourceAsStream("DejaVuSans.ttf");
+            Font font = Font.createFont(Font.TRUETYPE_FONT, fontStream);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(font);
+            InputStream reportPath = getClass().getClassLoader().getResourceAsStream("BuyerPending.jasper");
+            JasperPrint jasperReport = JasperFillManager.fillReport(reportPath, null, DatabaseConnection.getConnection());
+            JRViewer viewer = new JRViewer(jasperReport);
+            JFrame frame = new JFrame("Jasper Report Viewer");
+            frame.getContentPane().add(viewer);
+            frame.setSize(800, 600);
+            frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+            frame.setVisible(true);
+        } catch (SQLException | JRException | FontFormatException | IOException ex) {
             Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
         }
-        form.setVisible(true);
     }//GEN-LAST:event_jMenuItem11ActionPerformed
 
     private void jMenuItem12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem12ActionPerformed
-        SupplierPendingReport1 form = null;
         try {
-            form = new SupplierPendingReport1();
-        } catch (JRException | SQLException ex) {
+            InputStream fontStream = getClass().getClassLoader().getResourceAsStream("DejaVuSans.ttf");
+            Font font = Font.createFont(Font.TRUETYPE_FONT, fontStream);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(font);
+            InputStream reportPath = getClass().getClassLoader().getResourceAsStream("SupplierPending.jasper");
+            JasperPrint jasperReport = JasperFillManager.fillReport(reportPath, null, DatabaseConnection.getConnection());
+            JRViewer viewer = new JRViewer(jasperReport);
+            JFrame frame = new JFrame("Jasper Report Viewer");
+            frame.getContentPane().add(viewer);
+            frame.setSize(800, 600);
+            frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+            frame.setVisible(true);
+        } catch (SQLException | JRException | FontFormatException | IOException ex) {
             Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
         }
-        form.setVisible(true);
     }//GEN-LAST:event_jMenuItem12ActionPerformed
 
     private void jMenuItem10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem10ActionPerformed
-        SupplierReport form = null;
         try {
-            form = new SupplierReport();
-        } catch (JRException | SQLException ex) {
+            InputStream fontStream = getClass().getClassLoader().getResourceAsStream("DejaVuSans.ttf");
+            Font font = Font.createFont(Font.TRUETYPE_FONT, fontStream);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(font);
+            InputStream reportPath = getClass().getClassLoader().getResourceAsStream("Suppliers1.jasper");
+            JasperPrint jasperReport = JasperFillManager.fillReport(reportPath, null, DatabaseConnection.getConnection());
+            JRViewer viewer = new JRViewer(jasperReport);
+            JFrame frame = new JFrame("Jasper Report Viewer");
+            frame.getContentPane().add(viewer);
+            frame.setSize(800, 600);
+            frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+            frame.setVisible(true);
+        } catch (SQLException | JRException | FontFormatException | IOException ex) {
             Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
         }
-        form.setVisible(true);
     }//GEN-LAST:event_jMenuItem10ActionPerformed
 
     private void jMenuItem16ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem16ActionPerformed
-        BuyerReport form = null;
         try {
-            form = new BuyerReport();
-        } catch (JRException | SQLException ex) {
+            InputStream fontStream = getClass().getClassLoader().getResourceAsStream("DejaVuSans.ttf");
+            Font font = Font.createFont(Font.TRUETYPE_FONT, fontStream);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(font);
+            InputStream reportPath = getClass().getClassLoader().getResourceAsStream("Invoice.jasper");
+            JasperPrint jasperReport = JasperFillManager.fillReport(reportPath, null, DatabaseConnection.getConnection());
+            JRViewer viewer = new JRViewer(jasperReport);
+            JFrame frame = new JFrame("Jasper Report Viewer");
+            frame.getContentPane().add(viewer);
+            frame.setSize(800, 600);
+            frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+            frame.setVisible(true);
+        } catch (SQLException | JRException | FontFormatException | IOException ex) {
             Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
         }
-        form.setVisible(true);
     }//GEN-LAST:event_jMenuItem16ActionPerformed
 
     private void jMenuItem15ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem15ActionPerformed
-        LotReport form = null;
         try {
-            form = new LotReport();
-        } catch (JRException | SQLException ex) {
+            InputStream fontStream = getClass().getClassLoader().getResourceAsStream("DejaVuSans.ttf");
+            Font font = Font.createFont(Font.TRUETYPE_FONT, fontStream);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(font);
+            InputStream reportPath = getClass().getClassLoader().getResourceAsStream("Lots.jasper");
+            JasperPrint jasperReport = JasperFillManager.fillReport(reportPath, null, DatabaseConnection.getConnection());
+            JRViewer viewer = new JRViewer(jasperReport);
+            JFrame frame = new JFrame("Jasper Report Viewer");
+            frame.getContentPane().add(viewer);
+            frame.setSize(800, 600);
+            frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+            frame.setVisible(true);
+        } catch (SQLException | JRException | FontFormatException | IOException ex) {
             Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
         }
-        form.setVisible(true);
     }//GEN-LAST:event_jMenuItem15ActionPerformed
 
     private void jMenuItem18ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem18ActionPerformed
-        SaleReport form = null;
         try {
-            form = new SaleReport();
-        } catch (JRException | SQLException ex) {
+            InputStream fontStream = getClass().getClassLoader().getResourceAsStream("DejaVuSans.ttf");
+            Font font = Font.createFont(Font.TRUETYPE_FONT, fontStream);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(font);
+            InputStream reportPath = getClass().getClassLoader().getResourceAsStream("SaleReport.jasper");
+            JasperPrint jasperReport = JasperFillManager.fillReport(reportPath, null, DatabaseConnection.getConnection());
+            JRViewer viewer = new JRViewer(jasperReport);
+            JFrame frame = new JFrame("Jasper Report Viewer");
+            frame.getContentPane().add(viewer);
+            frame.setSize(800, 600);
+            frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+            frame.setVisible(true);
+        } catch (SQLException | JRException | FontFormatException | IOException ex) {
             Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
         }
-        form.setVisible(true);
     }//GEN-LAST:event_jMenuItem18ActionPerformed
 
 

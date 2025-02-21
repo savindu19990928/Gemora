@@ -4,18 +4,20 @@
  */
 package com.hirun.gemora;
 
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.GraphicsEnvironment;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperReport;
-import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.swing.JRViewer;
 
 /**
@@ -87,33 +89,23 @@ public class InvoiceReport extends javax.swing.JFrame {
         String saleIdText = jTextField1.getText();  // Assuming the JTextField is named jTextField1
 
         try {
-            // Convert the SALE_ID to an integer
             int saleId = Integer.parseInt(saleIdText);
-
-            // Create a parameter map for the report
             Map<String, Object> parameters = new HashMap<>();
-            parameters.put("SALE_ID", saleId); // Pass the SALE_ID parameter
-
-            String reportPath = getClass().getResource("/reports/InvoiceSALE.jasper").getPath();
-            JasperReport jasperReport = (JasperReport) JRLoader.loadObjectFromFile(reportPath);
-            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, DatabaseConnection.getConnection());
-
-            // View the report
-            JRViewer viewer = new JRViewer(jasperPrint);
+            parameters.put("SALE_ID", saleId);
+            InputStream fontStream = getClass().getClassLoader().getResourceAsStream("DejaVuSans.ttf");
+            Font font = Font.createFont(Font.TRUETYPE_FONT, fontStream);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(font);
+            InputStream reportPath = getClass().getClassLoader().getResourceAsStream("InvoiceSALE.jasper");
+            JasperPrint jasperReport = JasperFillManager.fillReport(reportPath, parameters, DatabaseConnection.getConnection());
+            JRViewer viewer = new JRViewer(jasperReport);
             JFrame frame = new JFrame("Jasper Report Viewer");
             frame.getContentPane().add(viewer);
             frame.setSize(800, 600);
             frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
             frame.setVisible(true);
-
-        } catch (NumberFormatException e) {
-            // Handle the case where the input is not a valid integer
-            JOptionPane.showMessageDialog(null, "Please enter a valid integer for SALE_ID.");
-        } catch (JRException e) {
-            // Handle JasperReports exception
-            JOptionPane.showMessageDialog(null, "Error generating report: " + e.getMessage());
-        } catch (SQLException ex) {
-            Logger.getLogger(InvoiceReport.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException | JRException | FontFormatException | IOException ex) {
+            Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
