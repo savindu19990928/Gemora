@@ -11,9 +11,9 @@ public class DatabaseConnection {
 
     static {
         // Database configuration
-        config.setJdbcUrl("jdbc:mysql://34.173.46.227:3306/hirun");
+        config.setJdbcUrl("jdbc:mysql://localhost:3306/hirun");
         config.setUsername("root");
-        config.setPassword("Hirun_45");
+        config.setPassword("savindu");
 
         ds = new HikariDataSource(config);
 

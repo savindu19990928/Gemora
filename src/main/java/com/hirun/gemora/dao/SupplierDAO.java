@@ -54,9 +54,7 @@ public class SupplierDAO {
         String sql = "SELECT * FROM Supplier";
         List<JSONObject> jsonList = new ArrayList<>();
 
-        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql); // Use PreparedStatement here
-                 ResultSet rs = pstmt.executeQuery()) {
-
+        try (Connection con = DatabaseConnection.getConnection(); Statement stmt = con.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 JSONObject json = new JSONObject();
                 json.put("supplier_id", rs.getInt("supplier_id"));
@@ -68,7 +66,6 @@ public class SupplierDAO {
                 json.put("created_at", rs.getTimestamp("created_at"));
                 jsonList.add(json);
             }
-            System.out.println("Fetched suppliers: " + jsonList);
         } catch (SQLException e) {
             e.printStackTrace();
         }
