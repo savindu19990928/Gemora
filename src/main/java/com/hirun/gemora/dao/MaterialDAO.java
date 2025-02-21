@@ -127,4 +127,124 @@ public class MaterialDAO {
         return materialId;
     }
 
+    public static int addMaterialPurchase(int materialId, int supplierId, int quantity, double itemPrice) {
+        String sql = "INSERT INTO MaterialPurchase (material_id, supplier_id, quantity, item_price) VALUES (?, ?, ?, ?)";
+        int generatedPurchaseId = -1;
+
+        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setInt(1, materialId);
+            ps.setInt(2, supplierId);
+            ps.setInt(3, quantity);
+            ps.setDouble(4, itemPrice);
+
+            int affectedRows = ps.executeUpdate();
+
+            if (affectedRows > 0) {
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        generatedPurchaseId = rs.getInt(1); // Retrieve generated Purchase ID
+                    }
+                }
+            }
+
+            System.out.println("Material purchase added successfully with ID: " + generatedPurchaseId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return generatedPurchaseId;
+    }
+
+    // Method to update an existing material purchase
+    public static void updateMaterialPurchase(int purchaseId, int materialId, int supplierId, int quantity, double itemPrice) {
+        String sql = "UPDATE MaterialPurchase SET material_id = ?, supplier_id = ?, quantity = ?, item_price = ? WHERE purchase_id = ?";
+
+        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, materialId);
+            ps.setInt(2, supplierId);
+            ps.setInt(3, quantity);
+            ps.setDouble(4, itemPrice);
+            ps.setInt(5, purchaseId);
+
+            ps.executeUpdate();
+            System.out.println("Material purchase updated successfully.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static JSONObject getMaterialCostAndStock(int materialId) {
+        String sql = "SELECT m.name, m.unit, m.unit_price, m.damaged_unit, SUM(mp.quantity * mp.item_price) AS total_purchase_cost "
+                + "FROM Material m "
+                + "LEFT JOIN MaterialPurchase mp ON m.material_id = mp.material_id "
+                + "WHERE m.material_id = ? "
+                + "GROUP BY m.material_id";
+
+        JSONObject materialDetails = new JSONObject();
+
+        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
+            pstmt.setInt(1, materialId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    materialDetails.put("name", rs.getString("name"));
+                    materialDetails.put("unit", rs.getInt("unit"));
+                    materialDetails.put("unit_price", rs.getDouble("unit_price"));
+                    materialDetails.put("damaged_unit", rs.getInt("damaged_unit"));
+                    materialDetails.put("total_purchase_cost", rs.getDouble("total_purchase_cost"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return materialDetails; // Returns the material details as JSON
+    }
+
+    public static Integer getFirstMaterialPurchaseIdByMaterialId(int materialId) {
+        String sql = "SELECT mp.purchase_id "
+                + "FROM MaterialPurchase mp "
+                + "WHERE mp.material_id = ? "
+                + "LIMIT 1";  // Limits the result to the first row
+
+        Integer purchaseId = null;
+
+        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
+            pstmt.setInt(1, materialId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    purchaseId = rs.getInt("purchase_id");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return purchaseId; // Returns the first purchase ID or null if not found
+    }
+
+    public static String getSupplierNameByPurchaseId(int purchaseId) {
+        String sql = "SELECT s.name AS supplier_name "
+                + "FROM MaterialPurchase mp "
+                + "JOIN Supplier s ON mp.supplier_id = s.supplier_id "
+                + "WHERE mp.purchase_id = ?";
+
+        String supplierName = null;
+
+        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
+            pstmt.setInt(1, purchaseId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    supplierName = rs.getString("supplier_name");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return supplierName; // Returns the supplier name as a string
+    }
 }
