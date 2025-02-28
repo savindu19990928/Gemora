@@ -112,7 +112,7 @@ public class Sales extends javax.swing.JFrame {
             }
         });
 
-        jButton6.setText("Manage Lot");
+        jButton6.setText("Manage Product");
         jButton6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton6ActionPerformed(evt);
