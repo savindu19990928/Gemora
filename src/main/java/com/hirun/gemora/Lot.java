@@ -88,7 +88,7 @@ public class Lot extends javax.swing.JFrame {
             }
         });
 
-        jLabel4.setText("Item Price");
+        jLabel4.setText("Item Cost");
 
         jButton4.setText("Delete");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
