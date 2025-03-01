@@ -65,7 +65,7 @@ public class ManageLots extends javax.swing.JFrame {
         setTitle("Manage Lots");
         setResizable(false);
 
-        jLabel1.setText("Lot");
+        jLabel1.setText("Product");
 
         jLabel2.setText("Item Price");
 
