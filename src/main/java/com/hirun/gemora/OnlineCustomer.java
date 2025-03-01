@@ -10,6 +10,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import org.json.JSONException;
 
@@ -211,7 +213,7 @@ public class OnlineCustomer extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private boolean doesLotIdExist(int lot_id) {
-        String query = "SELECT COUNT(*) FROM ProductLot WHERE lot_id = ?";
+        String query = "SELECT COUNT(*) FROM OnlineCustomer WHERE customer_id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
 
@@ -465,18 +467,63 @@ public class OnlineCustomer extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Validation Error", JOptionPane.ERROR_MESSAGE);
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Database error occurred: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
         } catch (HeadlessException | JSONException e) {
             JOptionPane.showMessageDialog(this, "An unexpected error occurred: " + e.getMessage(), "Unknown Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-        // TODO add your handling code here:
+        String idText = jTextField1.getText().trim();
+
+        if (idText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter a Customer ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            int materialId = Integer.parseInt(idText);
+
+            // Ensure materialId exists in the database before opening the form
+            if (!doesLotIdExist(materialId)) {
+                JOptionPane.showMessageDialog(this, "Customer ID not found. Please enter a valid ID.", "Invalid Material ID", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // Open the ManageCost form
+            ManageCost form = new ManageCost(materialId);
+            form.setVisible(true);
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid input. Please enter a numeric customer ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-        // TODO add your handling code here:
+        String idText = jTextField1.getText().trim();
+
+        if (idText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter a Customer ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            int materialId = Integer.parseInt(idText);
+
+            // Ensure materialId exists in the database before opening the form
+            if (!doesLotIdExist(materialId)) {
+                JOptionPane.showMessageDialog(this, "Customer ID not found. Please enter a valid ID.", "Invalid Material ID", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // Open the ManageCost form
+            ManageOproducts form = new ManageOproducts(materialId);
+            form.setVisible(true);
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid input. Please enter a numeric customer ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException ex) {
+            Logger.getLogger(OnlineCustomer.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_jButton7ActionPerformed
 
     /**

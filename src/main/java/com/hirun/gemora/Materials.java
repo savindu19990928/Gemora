@@ -402,13 +402,12 @@ public class Materials extends javax.swing.JFrame {
             }
 
             // Open the ManageCost form
-            ManageCost form = new ManageCost(materialId);
+            ManageCostOnline form = new ManageCostOnline(materialId);
             form.setVisible(true);
 
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Invalid input. Please enter a numeric Material ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
         }
-
     }//GEN-LAST:event_jButton7ActionPerformed
 
     private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
