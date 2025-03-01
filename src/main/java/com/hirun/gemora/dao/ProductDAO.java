@@ -1,178 +1,140 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.hirun.gemora.dao;
 
-import java.sql.PreparedStatement;
-import com.hirun.gemora.DatabaseConnection;
-import org.json.JSONObject;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import org.json.JSONObject;
+import com.hirun.gemora.DatabaseConnection;
 
-class ProductDAO {
+public class ProductDAO {
 
-    public void addProduct(String name, String description, double price) throws SQLException {
-        String sql = "INSERT INTO Product (name, description, price) VALUES (?, ?, ?)";
+    // Add a new product
+    public static void addProduct(String name) throws SQLException {
+        String sql = "INSERT INTO Product (name) VALUES (?)";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, name);
-            stmt.setString(2, description);
-            stmt.setDouble(3, price);
             stmt.executeUpdate();
         }
     }
 
-    public void updateProduct(int productId, String name, String description, double price) throws SQLException {
-        String sql = "UPDATE Product SET name = ?, description = ?, price = ? WHERE product_id = ?";
+    // Update product lot (quantity and damaged unit) based on product, color, and size
+    public static boolean updateProduct(String productName, String colorName, String sizeName,
+            int quantity, int damagedUnit) throws SQLException {
+        String sql = "UPDATE ProductLot pl "
+                + "JOIN Product p ON pl.product_id = p.product_id "
+                + "JOIN Color c ON pl.color_id = c.color_id "
+                + "JOIN Size s ON pl.size_id = s.size_id "
+                + "SET pl.quantity = ?, pl.damaged_unit = ? "
+                + "WHERE p.name = ? AND c.name = ? AND s.name = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, quantity);
+            stmt.setInt(2, damagedUnit);
+            stmt.setString(3, productName);
+            stmt.setString(4, colorName);
+            stmt.setString(5, sizeName);
+            stmt.executeUpdate();
+        }
+        return true;
+    }
+
+    // Delete product by name
+    public static void deleteProduct(String name) throws SQLException {
+        String sql = "DELETE FROM Product WHERE name = ?";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, name);
-            stmt.setString(2, description);
-            stmt.setDouble(3, price);
-            stmt.setInt(4, productId);
             stmt.executeUpdate();
         }
     }
 
-    public void deleteProduct(int productId) throws SQLException {
-        String sql = "DELETE FROM Product WHERE product_id = ?";
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, productId);
-            stmt.executeUpdate();
-        }
-    }
-
-    public List<String> getAllProducts() throws SQLException {
-        List<String> products = new ArrayList<>();
-        String sql = "SELECT * FROM Product";
+    // Get all products
+    public static List<JSONObject> getAllProducts() throws SQLException {
+        List<JSONObject> products = new ArrayList<>();
+        String sql = "SELECT product_id, name FROM Product";
         try (Connection conn = DatabaseConnection.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                products.add(rs.getString("name"));
+                JSONObject json = new JSONObject();
+                json.put("product_id", rs.getInt("product_id"));
+                json.put("name", rs.getString("name"));
+                products.add(json);
             }
         }
         return products;
     }
 
-    public String getProductById(int productId) throws SQLException {
-        String sql = "SELECT * FROM Product WHERE product_id = ?";
+    // Get product by ID
+    public static JSONObject getProductById(int productId) throws SQLException {
+        String sql = "SELECT product_id, name FROM Product WHERE product_id = ?";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, productId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return rs.getString("name");
+                JSONObject json = new JSONObject();
+                json.put("product_id", rs.getInt("product_id"));
+                json.put("name", rs.getString("name"));
+                return json;
             }
         }
         return null;
     }
 
-    public String getProductByName(String name) throws SQLException {
-        String sql = "SELECT * FROM Product WHERE name = ?";
+    // Get product by name
+    public static JSONObject getProductByName(String name) throws SQLException {
+        String sql = "SELECT product_id, name FROM Product WHERE name = ?";
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, name);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return rs.getString("name");
+                JSONObject json = new JSONObject();
+                json.put("product_id", rs.getInt("product_id"));
+                json.put("name", rs.getString("name"));
+                return json;
             }
         }
         return null;
     }
 
-    public void addColor(String name) throws SQLException {
-        String sql = "INSERT INTO Color (name) VALUES (?)";
+    // Get product lot details by product name, color, and size
+    public static JSONObject getProductLotByDetails(String productName, String colorName, String sizeName) throws SQLException {
+        String sql = "SELECT pl.lot_id, p.name AS product_name, c.name AS color_name, s.name AS size_name, pl.quantity, pl.damaged_unit, pl.production_date "
+                + "FROM ProductLot pl "
+                + "JOIN Product p ON pl.product_id = p.product_id "
+                + "JOIN Color c ON pl.color_id = c.color_id "
+                + "JOIN Size s ON pl.size_id = s.size_id "
+                + "WHERE p.name = ? AND c.name = ? AND s.name = ?";
+
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, name);
-            stmt.executeUpdate();
+            stmt.setString(1, productName);
+            stmt.setString(2, colorName);
+            stmt.setString(3, sizeName);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                JSONObject json = new JSONObject();
+                json.put("lot_id", rs.getInt("lot_id"));
+                json.put("product_name", rs.getString("product_name"));
+                json.put("color_name", rs.getString("color_name"));
+                json.put("size_name", rs.getString("size_name"));
+                json.put("quantity", rs.getInt("quantity"));
+                json.put("damaged_unit", rs.getInt("damaged_unit"));
+                json.put("production_date", rs.getTimestamp("production_date"));
+                return json;
+            }
         }
+        return null;
     }
 
-    public void updateColor(int colorId, String name) throws SQLException {
-        String sql = "UPDATE Color SET name = ? WHERE color_id = ?";
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, name);
-            stmt.setInt(2, colorId);
-            stmt.executeUpdate();
-        }
-    }
+    public static String[] getAllProductNames() throws SQLException {
+        String sql = "SELECT name FROM Product";
+        List<String> productNames = new ArrayList<>();
 
-    public void deleteColor(int colorId) throws SQLException {
-        String sql = "DELETE FROM Color WHERE color_id = ?";
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, colorId);
-            stmt.executeUpdate();
-        }
-    }
-
-    public List<String> getAllColors() throws SQLException {
-        List<String> colors = new ArrayList<>();
-        String sql = "SELECT * FROM Color";
         try (Connection conn = DatabaseConnection.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+
             while (rs.next()) {
-                colors.add(rs.getString("name"));
+                productNames.add(rs.getString("name"));
             }
         }
-        return colors;
-    }
 
-    public String getColorById(int colorId) throws SQLException {
-        String sql = "SELECT * FROM Color WHERE color_id = ?";
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, colorId);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getString("name");
-            }
-        }
-        return null;
-    }
-
-    public void addSize(String name) throws SQLException {
-        String sql = "INSERT INTO Size (name) VALUES (?)";
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, name);
-            stmt.executeUpdate();
-        }
-    }
-
-    public void updateSize(int sizeId, String name) throws SQLException {
-        String sql = "UPDATE Size SET name = ? WHERE size_id = ?";
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, name);
-            stmt.setInt(2, sizeId);
-            stmt.executeUpdate();
-        }
-    }
-
-    public void deleteSize(int sizeId) throws SQLException {
-        String sql = "DELETE FROM Size WHERE size_id = ?";
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, sizeId);
-            stmt.executeUpdate();
-        }
-    }
-
-    public List<String> getAllSizes() throws SQLException {
-        List<String> sizes = new ArrayList<>();
-        String sql = "SELECT * FROM Size";
-        try (Connection conn = DatabaseConnection.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                sizes.add(rs.getString("name"));
-            }
-        }
-        return sizes;
-    }
-
-    public String getSizeById(int sizeId) throws SQLException {
-        String sql = "SELECT * FROM Size WHERE size_id = ?";
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, sizeId);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getString("name");
-            }
-        }
-        return null;
+        // Convert list to array
+        return productNames.toArray(String[]::new);
     }
 }

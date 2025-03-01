@@ -4,9 +4,15 @@
  */
 package com.hirun.gemora;
 
+import com.hirun.gemora.dao.ColorDAO;
 import com.hirun.gemora.dao.ProductLotDAO;
 import com.hirun.gemora.dao.LotSaleDetailsDAO;
+import com.hirun.gemora.dao.ProductDAO;
+import com.hirun.gemora.dao.SizeDAO;
+import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
@@ -26,15 +32,33 @@ public class ManageLots extends javax.swing.JFrame {
      * Creates new form ManageProfit
      *
      * @param sale_id
+     * @throws java.sql.SQLException
      */
-    public ManageLots(int sale_id) {
+    public ManageLots(int sale_id) throws SQLException {
         this.sale_id = sale_id;
         initComponents();
+        try {
+            String[] pNames = ProductDAO.getAllProductNames();
+            String[] colorNames = ColorDAO.getAllColorNames();
+            String[] sizeNames = SizeDAO.getAllSizeNames();
+
+            // Set the combo box model to hold the color names
+            DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(colorNames);
+            DefaultComboBoxModel<String> model1 = new DefaultComboBoxModel<>(pNames);
+            DefaultComboBoxModel<String> model2 = new DefaultComboBoxModel<>(sizeNames);
+
+            // Set the model to the combo box
+            jComboBox3.setModel(model);
+            jComboBox2.setModel(model1);
+            jComboBox4.setModel(model2);
+        } catch (SQLException ex) {
+            Logger.getLogger(Lot.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
         DefaultTableModel tableModel = (DefaultTableModel) jTable1.getModel();
         tableModel.setRowCount(0);
         ProductLotDAO.loadProductLotsIntoTable(tableModel, sale_id);
-        List<JSONObject> lots = ProductLotDAO.readProductLots();
+        List<JSONObject> lots = ProductLotDAO.getAllProductLots();
         List<String> lotNames = lots.stream()
                 .map(json -> json.getString("name"))
                 .collect(Collectors.toList());
@@ -61,6 +85,10 @@ public class ManageLots extends javax.swing.JFrame {
         jComboBox2 = new javax.swing.JComboBox<>();
         jSpinner1 = new javax.swing.JSpinner();
         jTextField1 = new javax.swing.JTextField();
+        jComboBox3 = new javax.swing.JComboBox<>();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jComboBox4 = new javax.swing.JComboBox<>();
 
         setTitle("Manage Lots");
         setResizable(false);
@@ -87,16 +115,20 @@ public class ManageLots extends javax.swing.JFrame {
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
             },
             new String [] {
-                "Product ID", "Product Name", "Quantity", "Total Price", "Profit"
+                "Lot ID", "Product Name", "Quantity", "Total Price"
             }
         ));
         jScrollPane1.setViewportView(jTable1);
+
+        jLabel4.setText("Color");
+
+        jLabel5.setText("Size");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -107,16 +139,21 @@ public class ManageLots extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 413, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 90, Short.MAX_VALUE)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 90, Short.MAX_VALUE)
+                                .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(25, 25, 25)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                 .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jTextField1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jTextField1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jComboBox3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jComboBox4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(25, 25, 25)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -133,9 +170,17 @@ public class ManageLots extends javax.swing.JFrame {
                     .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(25, 25, 25)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4)
+                    .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton4))
+                .addGap(25, 25, 25)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5))
+                .addGap(25, 25, 25)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(25, 25, 25)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
@@ -152,8 +197,11 @@ public class ManageLots extends javax.swing.JFrame {
         DefaultTableModel tableModel = (DefaultTableModel) jTable1.getModel();
         tableModel.setRowCount(0);
         try {
-            int id = ProductLotDAO.getLotIdByName((String) jComboBox2.getSelectedItem());
-
+            JSONObject lotData = ProductLotDAO.getProductLotByDetails((String) jComboBox2.getSelectedItem(), (String) jComboBox3.getSelectedItem(), (String) jComboBox4.getSelectedItem());
+            if (lotData != null) {
+                JOptionPane.showMessageDialog(this, "Out Of Stock!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            int id = lotData.getInt("lot_id");
             Number spinnerValue = (Number) jSpinner1.getValue();  // Get value as Number
             double price = spinnerValue.doubleValue();  // Convert safely
 
@@ -162,7 +210,9 @@ public class ManageLots extends javax.swing.JFrame {
             ProductLotDAO.loadProductLotsIntoTable(tableModel, sale_id);
 
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Please enter valid numeric values for Lot ID and Amount!", "Input Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please enter valid Data!", "Input Error", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException ex) {
+            Logger.getLogger(ManageLots.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }//GEN-LAST:event_jButton1ActionPerformed
@@ -220,9 +270,13 @@ public class ManageLots extends javax.swing.JFrame {
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton4;
     private javax.swing.JComboBox<String> jComboBox2;
+    private javax.swing.JComboBox<String> jComboBox3;
+    private javax.swing.JComboBox<String> jComboBox4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSpinner jSpinner1;
     private javax.swing.JTable jTable1;

@@ -4,9 +4,10 @@
  */
 package com.hirun.gemora;
 
-import com.hirun.gemora.dao.SupplierDAO;
+import com.hirun.gemora.dao.*;
+import java.awt.HeadlessException;
+import java.sql.SQLException;
 import javax.swing.JOptionPane;
-import org.json.JSONObject;
 
 public class ColorSize extends javax.swing.JFrame {
 
@@ -28,11 +29,9 @@ public class ColorSize extends javax.swing.JFrame {
 
         jLabel1 = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
         jTextField2 = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
 
         setTitle("Manage Shops (Suppliers)");
@@ -40,26 +39,12 @@ public class ColorSize extends javax.swing.JFrame {
 
         jLabel1.setText("Color");
 
-        jButton1.setText("Search");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
-
         jLabel2.setText("Size");
 
         jButton2.setText("Add");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
-            }
-        });
-
-        jButton3.setText("Update");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
             }
         });
 
@@ -80,19 +65,13 @@ public class ColorSize extends javax.swing.JFrame {
                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1))
                 .addGap(25, 25, 25)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 191, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton2))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 191, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(25, 25, 25)
-                        .addComponent(jButton1)))
-                .addGap(25, 25, 25)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton3)
-                    .addComponent(jButton4))
+                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 191, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 191, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 25, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jButton4)
+                    .addComponent(jButton2))
                 .addContainerGap(50, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -102,13 +81,11 @@ public class ColorSize extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton3))
+                    .addComponent(jButton2))
                 .addGap(25, 25, 25)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton2)
                     .addComponent(jButton4))
                 .addContainerGap(50, Short.MAX_VALUE))
         );
@@ -116,123 +93,70 @@ public class ColorSize extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        String name = jTextField1.getText().trim();  // Get the supplier name from the text field
-        if (name.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Please enter a valid supplier name.", "Input Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        try {
-            // Fetch the supplier information by name from the database
-            JSONObject supplier = SupplierDAO.readSupplierByName(name);
-
-            // Check if the supplier exists in the database
-            if (supplier == null) {
-                JOptionPane.showMessageDialog(null, "Supplier not found.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            // Populate the text fields with the supplier's details
-            jTextField2.setText(supplier.getString("address"));
-            jTextField3.setText(supplier.getString("ownerName"));
-            jTextField4.setText(supplier.getString("contact_info"));
-
-        } catch (Exception e) {
-            // Handle any exceptions (e.g., network issues, database errors)
-            JOptionPane.showMessageDialog(null, "An error occurred while fetching the supplier details: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();  // Optionally log the stack trace for debugging
-        }
-    }//GEN-LAST:event_jButton1ActionPerformed
-
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         try {
             // Get input values from text fields
-            String name = jTextField1.getText().trim();
-            String address = jTextField2.getText().trim();
-            String ownerName = jTextField3.getText().trim();
-            String contactInfo = jTextField4.getText().trim();
+            String color = jTextField1.getText().trim();
+            String size = jTextField2.getText().trim();
 
             // Validate input fields
-            if (name.isEmpty() || address.isEmpty() || ownerName.isEmpty() || contactInfo.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "All fields are required!", "Input Error", JOptionPane.ERROR_MESSAGE);
+            if (color.isEmpty() && size.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "All fields are empty!", "Input Error", JOptionPane.ERROR_MESSAGE);
                 return; // Stop execution if validation fails
+            } else if (size.isEmpty()) {
+                ColorDAO.addColor(color);
+            } else if (color.isEmpty()){
+                SizeDAO.addSize(size);
+            } else {
+                ColorDAO.addColor(color);
+                SizeDAO.addSize(size);
             }
-
-            // Attempt to add supplier
-            SupplierDAO.addSupplier(name, address, ownerName, contactInfo);
 
             // Clear the fields after adding
             jTextField1.setText("");
             jTextField2.setText("");
-            jTextField3.setText("");
-            jTextField4.setText("");
 
             // Show a success message
-            JOptionPane.showMessageDialog(null, "Supplier added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Entry added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
 
-        } catch (Exception e) {
+        } catch (HeadlessException | SQLException e) {
             // Show an error message if an exception occurs
             JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace(); // Log error details for debugging
         }
     }//GEN-LAST:event_jButton2ActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         try {
             // Get input values from text fields
-            String name = jTextField1.getText().trim();
-            String address = jTextField2.getText().trim();
-            String ownerName = jTextField3.getText().trim();
-            String contactInfo = jTextField4.getText().trim();
+            String color = jTextField1.getText().trim();
+            String size = jTextField2.getText().trim();
 
-            // Validate if all fields are filled
-            if (name.isEmpty() || address.isEmpty() || ownerName.isEmpty() || contactInfo.isEmpty()) {
+            // Validate input fields
+            if (color.isEmpty() && size.isEmpty()) {
                 JOptionPane.showMessageDialog(null, "All fields are required!", "Input Error", JOptionPane.ERROR_MESSAGE);
-                return;
+                return; // Stop execution if validation fails
+            } else if (size.isEmpty()) {
+                ColorDAO.deleteColor(color);
+            } else {
+                SizeDAO.deleteSize(size);
             }
 
-            // Call the method to update the supplier
-            SupplierDAO.updateSupplier(name, address, ownerName, contactInfo);
-
-            // Clear the fields after updating
+            // Clear the fields after adding
             jTextField1.setText("");
             jTextField2.setText("");
-            jTextField3.setText("");
-            jTextField4.setText("");
 
-            // Show success message
-            JOptionPane.showMessageDialog(null, "Supplier updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            // Show a success message
+            JOptionPane.showMessageDialog(null, "Entry deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
 
-        } catch (Exception e) {
+        } catch (HeadlessException | SQLException e) {
             // Show an error message if an exception occurs
             JOptionPane.showMessageDialog(null, "An error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace(); // Log error details for debugging
-        }
-
-    }//GEN-LAST:event_jButton3ActionPerformed
-
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        String name = jTextField1.getText().trim();  // Get the supplier name from the text field
-        if (name.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Please enter a valid supplier name.", "Input Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        try {
-            SupplierDAO.removeSupplier(name);
-        } catch (Exception e) {
-            // Handle any exceptions (e.g., network issues, database errors)
-            JOptionPane.showMessageDialog(null, "An error occurred while fetching the supplier details: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();  // Optionally log the stack trace for debugging
         }
     }//GEN-LAST:event_jButton4ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
