@@ -49,6 +49,8 @@ public class InvoiceReport extends javax.swing.JFrame {
         jTextField1 = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
 
+        setTitle("Please Enter ID");
+
         jLabel1.setText("Sale ID");
 
         jButton1.setText("Search");
