@@ -4,16 +4,23 @@
  */
 package com.hirun.gemora;
 
+import com.hirun.gemora.dao.OnlineCustomerDAO;
 import java.awt.HeadlessException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  *
@@ -272,41 +279,25 @@ public class OnlineCustomer extends javax.swing.JFrame {
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         try {
-            // Example values, replace with actual values from your UI fields or other sources
-            String lotName = jTextField1.getText().trim(); // Assuming there's a JTextField for lot name
-            int quantity = Integer.parseInt(jTextField2.getText().trim()); // Assuming there's a JTextField for quantity
-            int damagedUnits = Integer.parseInt(jTextField3.getText().trim()); // Assuming there's a JTextField for damaged units
+            // Retrieve customer_id from JTextField
+            String customerIdString = jTextField9.getText().trim();  // Assuming there's a JTextField for customer ID
 
-            // Validate input fields
-            if (lotName.isEmpty()) {
-                throw new IllegalArgumentException("Lot name cannot be empty.");
-            }
-            if (quantity <= 0) {
-                throw new IllegalArgumentException("Quantity must be a positive number.");
-            }
-            if (damagedUnits < 0 || damagedUnits > quantity) {
-                throw new IllegalArgumentException("Damaged units cannot exceed total quantity.");
+            // Validate customer_id input
+            if (customerIdString.isEmpty()) {
+                throw new IllegalArgumentException("Customer ID cannot be empty.");
             }
 
-            // Establish a direct database connection (you can modify this as per your actual connection setup)
-            Connection con = DatabaseConnection.getConnection();
+            int customerId = Integer.parseInt(customerIdString);
 
-            // 1. Insert the ProductLot record directly into the table
-            String sqlProductLot = "INSERT INTO ProductLot (name, quantity, damaged_unit) VALUES ('"
-                    + lotName + "', " + quantity + ", " + damagedUnits + ")";
-            Statement stmt = con.createStatement();
-            stmt.executeUpdate(sqlProductLot, Statement.RETURN_GENERATED_KEYS);
+            // 1. Call the deleteOnlineCustomer method from OnlineCustomerDAO
+            OnlineCustomerDAO.deleteOnlineCustomer(customerId);
 
-            // 2. Get the generated lot_id from the ProductLot table
-            ResultSet rs = stmt.getGeneratedKeys();
-            int lotId = 0;
-            if (rs.next()) {
-                lotId = rs.getInt(1);
-            }
-            jTextField1.setText(lotId + "");
+            // Clear the input fields after successful deletion (Optional)
+            jTextField9.setText("");  // Clear the customer ID field
 
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid number format. Please check your inputs.", "Error", JOptionPane.ERROR_MESSAGE);
+            // Provide feedback to the user (Optional)
+            JOptionPane.showMessageDialog(this, "Customer deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+
         } catch (IllegalArgumentException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Validation Error", JOptionPane.ERROR_MESSAGE);
         } catch (SQLException e) {
@@ -318,98 +309,119 @@ public class OnlineCustomer extends javax.swing.JFrame {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         try {
+            int customerID = Integer.parseInt(jTextField9.getText().trim()); 
             // Example values, replace with actual values from your UI fields or other sources
-            String lotName = jTextField8.getText().trim(); // Assuming there's a JTextField for lot name
-            int quantity = Integer.parseInt(jTextField2.getText().trim()); // Assuming there's a JTextField for quantity
-            int damagedUnits = Integer.parseInt(jTextField3.getText().trim()); // Assuming there's a JTextField for damaged units
-            int lotId = Integer.parseInt(jTextField1.getText().trim()); // Assuming a JTextField for lot_id
+            String customerName = jTextField8.getText().trim();  // Assuming there's a JTextField for customer name
+            String phoneNumber = jTextField5.getText().trim();  // Assuming there's a JTextField for phone number
+            String address = jTextField6.getText().trim();  // Assuming there's a JTextArea for address
+            String orderedDateString = jTextField2.getText().trim(); // Assuming there's a JTextField for ordered date (String)
+            String deliveredDateString = jTextField3.getText().trim(); // Assuming there's a JTextField for delivered date (String)
+            String issue = jTextField1.getText().trim();  // Assuming there's a JTextField for issue description
 
             // Validate input fields
-            if (lotName.isEmpty()) {
-                throw new IllegalArgumentException("Lot name cannot be empty.");
+            if (customerName.isEmpty()) {
+                throw new IllegalArgumentException("Customer name cannot be empty.");
             }
-            if (quantity <= 0) {
-                throw new IllegalArgumentException("Quantity must be a positive number.");
+            if (phoneNumber.isEmpty()) {
+                throw new IllegalArgumentException("Phone number cannot be empty.");
             }
-            if (damagedUnits < 0 || damagedUnits > quantity) {
-                throw new IllegalArgumentException("Damaged units cannot exceed total quantity.");
-            }
-            if (lotId <= 0) {
-                throw new IllegalArgumentException("Invalid Lot ID.");
+            if (address.isEmpty()) {
+                throw new IllegalArgumentException("Address cannot be empty.");
             }
 
-            // Establish a direct database connection
-            Connection con = DatabaseConnection.getConnection();
+            // Parse the ordered and delivered dates from String to Timestamp
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");  // Adjust the format as per your input
+            Timestamp orderedDate = null;
+            Timestamp deliveredDate = null;
 
-            // Update the ProductLot record
-            String sqlUpdate = "UPDATE ProductLot SET name = ?, quantity = ?, damaged_unit = ? WHERE lot_id = ?";
-            PreparedStatement pstmt = con.prepareStatement(sqlUpdate);
-            pstmt.setString(1, lotName);
-            pstmt.setInt(2, quantity);
-            pstmt.setInt(3, damagedUnits);
-            pstmt.setInt(4, lotId);
+            try {
+                if (!orderedDateString.isEmpty()) {
+                    orderedDate = new Timestamp(dateFormat.parse(orderedDateString).getTime());
+                }
 
-            int rowsUpdated = pstmt.executeUpdate();
-
-            if (rowsUpdated > 0) {
-                JOptionPane.showMessageDialog(this, "Record updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(this, "No record found with the given Lot ID.", "Update Failed", JOptionPane.WARNING_MESSAGE);
+                // If jCheckBox1 is not checked, set deliveredDate to null
+                if (jCheckBox1.isSelected()) {
+                    if (!deliveredDateString.isEmpty()) {
+                        deliveredDate = new Timestamp(dateFormat.parse(deliveredDateString).getTime());
+                    } else {
+                        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+                        deliveredDate = timestamp;
+                    }
+                } else {
+                    deliveredDate = null;  // Set deliveredDate to null if checkbox is unchecked
+                }
+            } catch (ParseException e) {
+                JOptionPane.showMessageDialog(this, "Invalid date format. Please use the format: yyyy-MM-dd HH:mm:ss", "Date Format Error", JOptionPane.ERROR_MESSAGE);
+                return;  // Stop execution if date parsing fails
             }
 
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid number format. Please check your inputs.", "Error", JOptionPane.ERROR_MESSAGE);
+            // 1. Call the addOnlineCustomer method from OnlineCustomerDAO
+            OnlineCustomerDAO.updateOnlineCustomer(customerID, customerName, phoneNumber, address, orderedDate, deliveredDate, issue);
+
+            // Provide feedback to the user (Optional)
+            JOptionPane.showMessageDialog(this, "Customer updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+
         } catch (IllegalArgumentException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Validation Error", JOptionPane.ERROR_MESSAGE);
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Database error occurred: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-        } catch (HeadlessException e) {
+        } catch (HeadlessException | JSONException e) {
             JOptionPane.showMessageDialog(this, "An unexpected error occurred: " + e.getMessage(), "Unknown Error", JOptionPane.ERROR_MESSAGE);
         }
-
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         try {
             // Example values, replace with actual values from your UI fields or other sources
-            String lotName = jTextField8.getText().trim(); // Assuming there's a JTextField for lot name
-            int quantity = Integer.parseInt(jTextField2.getText().trim()); // Assuming there's a JTextField for quantity
-            int damagedUnits = Integer.parseInt(jTextField3.getText().trim()); // Assuming there's a JTextField for damaged units
+            String customerName = jTextField8.getText().trim();  // Assuming there's a JTextField for customer name
+            String phoneNumber = jTextField5.getText().trim();  // Assuming there's a JTextField for phone number
+            String address = jTextField6.getText().trim();  // Assuming there's a JTextArea for address
+            String orderedDateString = jTextField2.getText().trim(); // Assuming there's a JTextField for ordered date (String)
+            String deliveredDateString = jTextField3.getText().trim(); // Assuming there's a JTextField for delivered date (String)
+            String issue = jTextField1.getText().trim();  // Assuming there's a JTextField for issue description
 
             // Validate input fields
-            if (lotName.isEmpty()) {
-                throw new IllegalArgumentException("Lot name cannot be empty.");
+            if (customerName.isEmpty()) {
+                throw new IllegalArgumentException("Customer name cannot be empty.");
             }
-            if (quantity <= 0) {
-                throw new IllegalArgumentException("Quantity must be a positive number.");
+            if (phoneNumber.isEmpty()) {
+                throw new IllegalArgumentException("Phone number cannot be empty.");
             }
-            if (damagedUnits < 0 || damagedUnits > quantity) {
-                throw new IllegalArgumentException("Damaged units cannot exceed total quantity.");
+            if (address.isEmpty()) {
+                throw new IllegalArgumentException("Address cannot be empty.");
             }
 
-            // Establish a direct database connection (you can modify this as per your actual connection setup)
-            Connection con = DatabaseConnection.getConnection();
+            // Parse the ordered and delivered dates from String to Timestamp
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");  // Adjust the format as per your input
+            Timestamp orderedDate = null;
+            Timestamp deliveredDate = null;
 
-            // 1. Insert the ProductLot record directly into the table
-            String sqlProductLot = "INSERT INTO ProductLot (name, quantity, damaged_unit) VALUES ('"
-                    + lotName + "', " + quantity + ", " + damagedUnits + ")";
-            Statement stmt = con.createStatement();
-            stmt.executeUpdate(sqlProductLot, Statement.RETURN_GENERATED_KEYS);
-
-            // 2. Get the generated lot_id from the ProductLot table
-            ResultSet rs = stmt.getGeneratedKeys();
-            int lotId = 0;
-            if (rs.next()) {
-                lotId = rs.getInt(1);
+            try {
+                if (!orderedDateString.isEmpty()) {
+                    orderedDate = new Timestamp(dateFormat.parse(orderedDateString).getTime());
+                }
+                if (!deliveredDateString.isEmpty()) {
+                    deliveredDate = new Timestamp(dateFormat.parse(deliveredDateString).getTime());
+                }
+            } catch (ParseException e) {
+                JOptionPane.showMessageDialog(this, "Invalid date format. Please use the format: yyyy-MM-dd HH:mm:ss", "Date Format Error", JOptionPane.ERROR_MESSAGE);
+                return;  // Stop execution if date parsing fails
             }
-            jTextField1.setText(lotId + "");
-            jTextField2.setText("");
-            jTextField3.setText("");
-            jTextField4.setText("");
+
+            // 1. Call the addOnlineCustomer method from OnlineCustomerDAO
+            OnlineCustomerDAO.addOnlineCustomer(customerName, phoneNumber, address, orderedDate, deliveredDate, issue);
+
+            // Clear UI fields after successful insertion (Optional)
             jTextField8.setText("");
+            jTextField5.setText("");
+            jTextField6.setText("");
+            jTextField3.setText("");
+            jTextField2.setText("");
+            jTextField1.setText("");
 
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid number format. Please check your inputs.", "Error", JOptionPane.ERROR_MESSAGE);
+            // Provide feedback to the user (Optional)
+            JOptionPane.showMessageDialog(this, "Customer added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+
         } catch (IllegalArgumentException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Validation Error", JOptionPane.ERROR_MESSAGE);
         } catch (SQLException e) {
@@ -421,48 +433,42 @@ public class OnlineCustomer extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
-            // Example value, replace with actual value from your UI field or other source
-            int lotId = Integer.parseInt(jTextField1.getText().trim()); // Assuming there's a JTextField for lot ID to search
+            // Retrieve customer_id from JTextField
+            String customerIdString = jTextField9.getText().trim();  // Assuming there's a JTextField for customer ID
 
-            // Validate input field
-            if (lotId <= 0) {
-                throw new IllegalArgumentException("Lot ID must be a positive number.");
+            // Validate customer_id input
+            if (customerIdString.isEmpty()) {
+                throw new IllegalArgumentException("Customer ID cannot be empty.");
             }
 
-            // Establish a direct database connection (you can modify this as per your actual connection setup)
-            Connection con = DatabaseConnection.getConnection();
+            int customerId = Integer.parseInt(customerIdString);  // Convert to integer
 
-            // 1. Search for the ProductLot record based on the lot_id
-            String sqlSearchProductLot = "SELECT * FROM ProductLot WHERE lot_id = ?";
-            PreparedStatement ps = con.prepareStatement(sqlSearchProductLot);
+            // Get the customer data by customer_id from the database using DAO
+            JSONObject customer = OnlineCustomerDAO.getOnlineCustomerById(customerId);
 
-            // Set the lot_id parameter
-            ps.setInt(1, lotId);
+            if (customer != null) {
+                // If customer is found, display the customer details in respective JTextFields
+                jTextField8.setText(customer.getString("customer_name"));
+                jTextField5.setText(customer.getString("phone_number"));
+                jTextField6.setText(customer.getString("address"));
+                jTextField2.setText(customer.getString("ordered_date"));
 
-            // Execute the query
-            ResultSet rs = ps.executeQuery();
+                // Handle nullable delivered_date
+                String dDate = customer.optString("delivered_date", null); // Use optString with default null
+                if (dDate != null && !dDate.isEmpty()) {
+                    jTextField3.setText(dDate);
+                    jCheckBox1.setSelected(true);
+                } else {
+                    jTextField3.setText(""); // Clear field if delivered_date is null
+                    jCheckBox1.setSelected(false);
+                }
 
-            // 2. Check if the product lot exists
-            if (rs.next()) {
-                // If the product lot is found, retrieve and display its details
-                String lotName = rs.getString("name");
-                int quantity = rs.getInt("quantity");
-                int damagedUnits = rs.getInt("damaged_unit");
-                String productionDate = rs.getString("production_date");
-
-                // Set the values in the UI fields
-                jTextField8.setText(lotName); // Display Lot Name
-                jTextField2.setText(String.valueOf(quantity)); // Display Quantity
-                jTextField3.setText(String.valueOf(damagedUnits));
-                jTextField4.setText(String.valueOf(getTotalProductLotCost(lotId))); // Display Damaged Units
-
+                jTextField1.setText(customer.optString("issue",""));
             } else {
-                // No record found
-                JOptionPane.showMessageDialog(this, "No product lot found with the given ID.", "Search Failed", JOptionPane.WARNING_MESSAGE);
+                // If customer is not found, show an error message
+                JOptionPane.showMessageDialog(this, "Customer not found.", "Search Error", JOptionPane.ERROR_MESSAGE);
             }
 
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid number format. Please check your inputs.", "Error", JOptionPane.ERROR_MESSAGE);
         } catch (IllegalArgumentException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Validation Error", JOptionPane.ERROR_MESSAGE);
         } catch (SQLException e) {
@@ -473,33 +479,7 @@ public class OnlineCustomer extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-        String idText = jTextField1.getText().trim();
-
-        if (idText.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please enter a Customer ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        try {
-            int materialId = Integer.parseInt(idText);
-
-            // Ensure materialId exists in the database before opening the form
-            if (!doesLotIdExist(materialId)) {
-                JOptionPane.showMessageDialog(this, "Customer ID not found. Please enter a valid ID.", "Invalid Material ID", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            // Open the ManageCost form
-            ManageCost form = new ManageCost(materialId);
-            form.setVisible(true);
-
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid input. Please enter a numeric customer ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }//GEN-LAST:event_jButton6ActionPerformed
-
-    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-        String idText = jTextField1.getText().trim();
+        String idText = jTextField9.getText().trim();
 
         if (idText.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please enter a Customer ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
@@ -523,6 +503,32 @@ public class OnlineCustomer extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Invalid input. Please enter a numeric customer ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
         } catch (SQLException ex) {
             Logger.getLogger(OnlineCustomer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+        String idText = jTextField9.getText().trim();
+
+        if (idText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter a Customer ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            int materialId = Integer.parseInt(idText);
+
+            // Ensure materialId exists in the database before opening the form
+            if (!doesLotIdExist(materialId)) {
+                JOptionPane.showMessageDialog(this, "Customer ID not found. Please enter a valid ID.", "Invalid Material ID", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // Open the ManageCost form
+            ManageCostOnline form = new ManageCostOnline(materialId);
+            form.setVisible(true);
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid input. Please enter a numeric customer ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_jButton7ActionPerformed
 

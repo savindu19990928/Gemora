@@ -82,7 +82,7 @@ public class ProductLotDAO {
     }
 
     public static JSONObject getProductLotByDetails(String productName, String colorName, String sizeName) throws SQLException {
-        String sql = "SELECT pl.lot_id, p.name AS product_name, c.name AS color_name, s.name AS size_name, "
+        String sql = "SELECT pl.lot_id AS lot_id, p.name AS product_name, c.name AS color_name, s.name AS size_name, "
                 + "pl.quantity, pl.damaged_unit "
                 + "FROM ProductLot pl "
                 + "JOIN Product p ON pl.product_id = p.product_id "
@@ -151,6 +151,37 @@ public class ProductLotDAO {
                 // Iterate through the result set
                 while (rs.next()) {
                     int lotId = rs.getInt("lot_id");
+                    String productName = rs.getString("product_name");
+                    int quantity = rs.getInt("quantity");
+                    BigDecimal totalPrice = rs.getBigDecimal("total_price");
+
+                    // Add a row to the table model
+                    tableModel.addRow(new Object[]{lotId, productName, quantity, totalPrice});
+                }
+            }
+        }
+    }
+
+    public static void loadProductsOnlineIntoTable(DefaultTableModel tableModel, int customerId) throws SQLException {
+        String sql = "SELECT ood.order_id, pl.lot_id, p.name AS product_name, ood.quantity, "
+                + "(ood.sold_price * ood.quantity) AS total_price "
+                + "FROM OnlineOrderDetails ood "
+                + "JOIN ProductLot pl ON ood.lot_id = pl.lot_id "
+                + "JOIN Product p ON pl.product_id = p.product_id "
+                + "WHERE ood.customer_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // Set the customer_id in the query
+            pstmt.setInt(1, customerId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                // Clear existing rows
+                tableModel.setRowCount(0);
+
+                // Iterate through the result set
+                while (rs.next()) {
+                    int lotId = rs.getInt("order_id");
                     String productName = rs.getString("product_name");
                     int quantity = rs.getInt("quantity");
                     BigDecimal totalPrice = rs.getBigDecimal("total_price");

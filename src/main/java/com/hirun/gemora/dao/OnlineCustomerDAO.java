@@ -3,6 +3,7 @@ package com.hirun.gemora.dao;
 import org.json.JSONObject;
 import com.hirun.gemora.DatabaseConnection;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,7 +88,14 @@ public class OnlineCustomerDAO {
                     json.put("customer_name", rs.getString("customer_name"));
                     json.put("phone_number", rs.getString("phone_number"));
                     json.put("address", rs.getString("address"));
-                    json.put("ordered_date", rs.getTimestamp("ordered_date"));
+
+                    // Convert ordered_date to string
+                    Timestamp orderedTimestamp = rs.getTimestamp("ordered_date");
+                    String orderedDateStr = (orderedTimestamp != null)
+                            ? new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(orderedTimestamp)
+                            : null;
+                    json.put("ordered_date", orderedDateStr);
+
                     json.put("delivered_date", rs.getTimestamp("delivered_date"));
                     json.put("issue", rs.getString("issue"));
                     return json;
