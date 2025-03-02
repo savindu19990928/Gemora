@@ -1,5 +1,4 @@
 Variant Bug,
 Profit Bug,
-Logo in middle
-
+Logo in middle,
 Personal Finances

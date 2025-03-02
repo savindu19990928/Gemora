@@ -275,13 +275,14 @@ public class Sales extends javax.swing.JFrame {
         // Start the sale creation process
         try {
             // 1. Create Sale Record
-            boolean saleRecordSuccess = SaleDAO.makeSale(buyerId.getInt("buyer_id"), saleName);
+            int saleRecordSuccess = SaleDAO.makeSale(buyerId.getInt("buyer_id"), saleName);
 
-            if (!saleRecordSuccess) {
+            if (saleRecordSuccess < 0) {
                 JOptionPane.showMessageDialog(this, "Failed to create sale record.", "Error", JOptionPane.ERROR_MESSAGE);
                 return; // Exit the method if the sale record creation fails
             }
             // If everything is successful
+            jTextField1.setText(saleRecordSuccess + "");
             JOptionPane.showMessageDialog(this, "Sale successfully created and items added.", "Success", JOptionPane.INFORMATION_MESSAGE);
 
         } catch (HeadlessException e) {

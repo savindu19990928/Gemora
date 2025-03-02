@@ -41,7 +41,7 @@ public class ManageLots extends javax.swing.JFrame {
             String[] pNames = ProductDAO.getAllProductNames();
             String[] colorNames = ColorDAO.getAllColorNames();
             String[] sizeNames = SizeDAO.getAllSizeNames();
-
+            
             // Set the combo box model to hold the color names
             DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(colorNames);
             DefaultComboBoxModel<String> model1 = new DefaultComboBoxModel<>(pNames);
@@ -58,12 +58,6 @@ public class ManageLots extends javax.swing.JFrame {
         DefaultTableModel tableModel = (DefaultTableModel) jTable1.getModel();
         tableModel.setRowCount(0);
         ProductLotDAO.loadProductLotsIntoTable(tableModel, sale_id);
-        List<JSONObject> lots = ProductLotDAO.getAllProductLots();
-        List<String> lotNames = lots.stream()
-                .map(json -> json.getString("name"))
-                .collect(Collectors.toList());
-        cModel = new DefaultComboBoxModel<>(lotNames.toArray(new String[0]));
-        jComboBox2.setModel(cModel);
     }
 
     /**
@@ -90,7 +84,7 @@ public class ManageLots extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         jComboBox4 = new javax.swing.JComboBox<>();
 
-        setTitle("Manage Lots");
+        setTitle("Manage Products");
         setResizable(false);
 
         jLabel1.setText("Product");

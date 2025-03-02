@@ -7,7 +7,7 @@ import java.sql.*;
 public class SaleDAO {
 
     // 1. Make Sale (Insert Sale Record)
-    public static boolean makeSale(int buyerId, String saleName) {
+    public static int makeSale(int buyerId, String saleName) {
         String saleQuery = "INSERT INTO LotSale (buyer_id, name) VALUES (?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection()) {
@@ -21,21 +21,22 @@ public class SaleDAO {
 
                 // Get generated sale ID
                 try (ResultSet rs = saleStmt.getGeneratedKeys()) {
-                    if (!rs.next()) {
+                    if (rs.next()) {
+                        int saleId = rs.getInt(1);
+                        conn.commit();
+                        return saleId;
+                    } else {
                         conn.rollback();
-                        return false;
+                        return -1; // Indicate failure
                     }
                 }
             }
-
-            conn.commit();
-            return true;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return -1; // Indicate failure
         }
     }
-
+    
     // 2. Delete Sale (Delete Sale Record)
     public static boolean deleteSale(int saleId) {
         String deleteSaleQuery = "DELETE FROM LotSale WHERE sale_id = ?";
