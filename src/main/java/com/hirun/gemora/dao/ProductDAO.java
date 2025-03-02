@@ -20,20 +20,53 @@ public class ProductDAO {
     // Update product lot (quantity and damaged unit) based on product, color, and size
     public static boolean updateProduct(String productName, String colorName, String sizeName,
             int quantity, int damagedUnit) throws SQLException {
-        String sql = "UPDATE ProductLot pl "
+        String selectSql = "SELECT pl.lot_id FROM ProductLot pl "
+                + "JOIN Product p ON pl.product_id = p.product_id "
+                + "JOIN Color c ON pl.color_id = c.color_id "
+                + "JOIN Size s ON pl.size_id = s.size_id "
+                + "WHERE p.name = ? AND c.name = ? AND s.name = ?";
+
+        String updateSql = "UPDATE ProductLot pl "
                 + "JOIN Product p ON pl.product_id = p.product_id "
                 + "JOIN Color c ON pl.color_id = c.color_id "
                 + "JOIN Size s ON pl.size_id = s.size_id "
                 + "SET pl.quantity = ?, pl.damaged_unit = ? "
                 + "WHERE p.name = ? AND c.name = ? AND s.name = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, quantity);
-            stmt.setInt(2, damagedUnit);
-            stmt.setString(3, productName);
-            stmt.setString(4, colorName);
-            stmt.setString(5, sizeName);
-            stmt.executeUpdate();
+        String insertSql = "INSERT INTO ProductLot (product_id, color_id, size_id, quantity, damaged_unit) "
+                + "VALUES ((SELECT product_id FROM Product WHERE name = ?), "
+                + "(SELECT color_id FROM Color WHERE name = ?), "
+                + "(SELECT size_id FROM Size WHERE name = ?), ?, ?)";
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
+
+            selectStmt.setString(1, productName);
+            selectStmt.setString(2, colorName);
+            selectStmt.setString(3, sizeName);
+
+            try (ResultSet rs = selectStmt.executeQuery()) {
+                if (rs.next()) {
+                    // Update existing record
+                    try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                        updateStmt.setInt(1, quantity);
+                        updateStmt.setInt(2, damagedUnit);
+                        updateStmt.setString(3, productName);
+                        updateStmt.setString(4, colorName);
+                        updateStmt.setString(5, sizeName);
+                        updateStmt.executeUpdate();
+                    }
+                } else {
+                    // Insert new record
+                    try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+                        insertStmt.setString(1, productName);
+                        insertStmt.setString(2, colorName);
+                        insertStmt.setString(3, sizeName);
+                        insertStmt.setInt(4, quantity);
+                        insertStmt.setInt(5, damagedUnit);
+                        insertStmt.executeUpdate();
+                    }
+                }
+            }
         }
         return true;
     }

@@ -1,4 +1,6 @@
-Variant Bug,
 Profit Bug,
 Logo in middle,
+expense divide,
+Customer id and date auto and quantity bug,
+Online sale report,
 Personal Finances

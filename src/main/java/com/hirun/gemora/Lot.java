@@ -33,16 +33,19 @@ public class Lot extends javax.swing.JFrame {
     public Lot() {
         try {
             initComponents();
+            String[] pNames = ProductDAO.getAllProductNames();
             String[] colorNames = ColorDAO.getAllColorNames();
             String[] sizeNames = SizeDAO.getAllSizeNames();
 
             // Set the combo box model to hold the color names
             DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(colorNames);
+            DefaultComboBoxModel<String> model1 = new DefaultComboBoxModel<>(pNames);
             DefaultComboBoxModel<String> model2 = new DefaultComboBoxModel<>(sizeNames);
 
             // Set the model to the combo box
             jComboBox1.setModel(model);
             jComboBox2.setModel(model2);
+            jComboBox3.setModel(model1);
         } catch (SQLException ex) {
             Logger.getLogger(Lot.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -75,6 +78,8 @@ public class Lot extends javax.swing.JFrame {
         jLabel6 = new javax.swing.JLabel();
         jComboBox2 = new javax.swing.JComboBox<>();
         jButton6 = new javax.swing.JButton();
+        jLabel9 = new javax.swing.JLabel();
+        jComboBox3 = new javax.swing.JComboBox<>();
 
         setTitle("Manage Products");
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -137,6 +142,10 @@ public class Lot extends javax.swing.JFrame {
             }
         });
 
+        jLabel9.setText("Product");
+
+        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Product" }));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -149,7 +158,8 @@ public class Lot extends javax.swing.JFrame {
                     .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(25, 25, 25)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jTextField3, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
@@ -159,7 +169,8 @@ public class Lot extends javax.swing.JFrame {
                     .addComponent(jTextField2, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
                     .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jComboBox2, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jButton6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jComboBox3, javax.swing.GroupLayout.Alignment.TRAILING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(25, 25, 25)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButton4)
@@ -178,20 +189,24 @@ public class Lot extends javax.swing.JFrame {
                     .addComponent(jButton1))
                 .addGap(25, 25, 25)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel9)
+                    .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton2))
+                .addGap(24, 24, 24)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel5)
-                    .addComponent(jButton2))
+                    .addComponent(jButton3))
                 .addGap(25, 25, 25)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
                     .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton3))
+                    .addComponent(jButton4))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 25, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2)
-                    .addComponent(jButton4))
-                .addGap(25, 25, 25)
+                    .addComponent(jLabel2))
+                .addGap(26, 26, 26)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel3))
@@ -201,7 +216,7 @@ public class Lot extends javax.swing.JFrame {
                     .addComponent(jLabel4))
                 .addGap(25, 25, 25)
                 .addComponent(jButton5)
-                .addGap(25, 25, 25)
+                .addGap(22, 22, 22)
                 .addComponent(jButton6)
                 .addGap(50, 50, 50))
         );
@@ -282,12 +297,12 @@ public class Lot extends javax.swing.JFrame {
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         try {
-            String productName = jTextField8.getText().trim(); // Get and trim product name
+            String productNameText = jTextField8.getText();
+            String productNameCombo = (String) jComboBox3.getSelectedItem();
 
-            // Validate input: Ensure product name is not empty
-            if (productName.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Please enter a valid product name.", "Validation Error", JOptionPane.WARNING_MESSAGE);
-                return; // Exit early if the product name is empty
+            String productName = "";
+            if (productNameText.isEmpty()) {
+                productName = productNameCombo;
             }
 
             // Attempt to delete the product
@@ -305,7 +320,14 @@ public class Lot extends javax.swing.JFrame {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         try {
-            String productName = jTextField8.getText().trim(); // Get and trim product name
+            String productNameText = jTextField8.getText();
+            String productNameCombo = (String) jComboBox3.getSelectedItem();
+
+            String productName = "";
+            if (productNameText.isEmpty()) {
+                productName = productNameCombo;
+            }
+
             String colorName = (String) jComboBox1.getSelectedItem(); // Get color name
             String sizeName = (String) jComboBox2.getSelectedItem();  // Get size name
 
@@ -355,12 +377,12 @@ public class Lot extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        String productName = jTextField8.getText();  // Assuming jTextFieldProductName is the input field for product name
+        String productNameText = jTextField8.getText();
+        String productNameCombo = (String) jComboBox3.getSelectedItem();
 
-// Check if the product name is empty
-        if (productName.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Product name cannot be empty.", "Validation Error", JOptionPane.WARNING_MESSAGE);
-            return; // Exit early if no product name is provided
+        String productName = "";
+        if (productNameText.isEmpty()) {
+            productName = productNameCombo;
         }
 
         try {
@@ -397,7 +419,14 @@ public class Lot extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
             // Retrieve the values entered by the user
-            String productName = jTextField8.getText();  // Assuming jTextFieldProductName is a JTextField for product name input
+            String productNameText = jTextField8.getText();
+            String productNameCombo = (String) jComboBox3.getSelectedItem();
+
+            String productName = "";
+            if (productNameText.isEmpty()) {
+                productName = productNameCombo;
+            }
+
             String colorName = (String) jComboBox1.getSelectedItem();      // Assuming jComboBox1 is the JComboBox for color name input
             String sizeName = (String) jComboBox2.getSelectedItem();        // Assuming jComboBox2 is the JComboBox for size name input
 
@@ -578,12 +607,14 @@ public class Lot extends javax.swing.JFrame {
     private javax.swing.JButton jButton6;
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JComboBox<String> jComboBox2;
+    private javax.swing.JComboBox<String> jComboBox3;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
