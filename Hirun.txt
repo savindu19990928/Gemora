@@ -1,13 +1,5 @@
-Cheque time period - Date
-payment pending with product
-profit percentage calculation
-profit manual entering
-
-online - Customer name, Phone number, Address, Date(Auto and Manual), Delivered Date(Auto and Manual), Any Issue, Item details (select check boxes).
-	 List Report.
-	 Report per customer
-	 Different prices
-
-Item Details(Different Prices) - Color, Size (Show only available/3XL/Custom size(Enter size))
+Variant Bug,
+Profit Bug,
+Logo in middle
 
 Personal Finances
