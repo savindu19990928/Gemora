@@ -34,7 +34,6 @@ public class Materials extends javax.swing.JFrame {
         // Loop through the supplier list and add each one to the combo box
         for (JSONObject supplier : suppliers) {
             String supplierName = supplier.getString("name");
-            System.out.print(supplier.getString("name"));
             jComboBox1.addItem(supplierName);
         }
 

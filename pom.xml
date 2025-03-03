@@ -63,7 +63,8 @@
                 <directory>src/main/resources</directory>
                 <includes>
                     <include>**/*.ttf</include>
-                    <include>**/*.jasper</include>  <!-- Add this line -->
+                    <include>**/*.jasper</include>
+                    <include>**/*.png</include>
                 </includes>
             </resource>
         </resources>

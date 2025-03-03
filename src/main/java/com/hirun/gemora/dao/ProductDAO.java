@@ -156,6 +156,36 @@ public class ProductDAO {
         return null;
     }
 
+    public static int getTotalProductsByProductName(String productName) throws SQLException {
+        // First, retrieve the product_id by product name
+        String getProductIdSql = "SELECT p.product_id FROM Product p WHERE p.name = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(getProductIdSql)) {
+
+            stmt.setString(1, productName);  // Set the product name
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int productId = rs.getInt("product_id");  // Get the product_id
+
+                // Now, sum the quantities from the ProductLot table for this product_id
+                String getTotalQuantitySql = "SELECT SUM(pl.quantity) AS total_quantity "
+                        + "FROM ProductLot pl "
+                        + "WHERE pl.product_id = ?";
+
+                try (PreparedStatement totalStmt = conn.prepareStatement(getTotalQuantitySql)) {
+                    totalStmt.setInt(1, productId);  // Set the product_id
+
+                    ResultSet totalRs = totalStmt.executeQuery();
+                    if (totalRs.next()) {
+                        return totalRs.getInt("total_quantity");  // Return the total quantity
+                    }
+                }
+            }
+        }
+        return 0;  // Return 0 if no matching product or product lots found
+    }
+
     public static String[] getAllProductNames() throws SQLException {
         String sql = "SELECT name FROM Product";
         List<String> productNames = new ArrayList<>();

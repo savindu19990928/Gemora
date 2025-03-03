@@ -10,18 +10,29 @@ import java.util.List;
 public class OnlineCustomerDAO {
 
     // Add a new online customer
-    public static void addOnlineCustomer(String customerName, String phoneNumber, String address,
+    public static int addOnlineCustomer(String customerName, String phoneNumber, String address,
             Timestamp orderedDate, Timestamp deliveredDate, String issue) throws SQLException {
+
         String sql = "INSERT INTO OnlineCustomer (customer_name, phone_number, address, ordered_date, delivered_date, issue) VALUES (?, ?, ?, ?, ?, ?)";
 
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
             stmt.setString(1, customerName);
             stmt.setString(2, phoneNumber);
             stmt.setString(3, address);
             stmt.setTimestamp(4, orderedDate);
             stmt.setTimestamp(5, deliveredDate);
             stmt.setString(6, issue);
-            stmt.executeUpdate();
+            int affectedRows = stmt.executeUpdate();
+
+            if (affectedRows > 0) {
+                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        return generatedKeys.getInt(1); // Return the generated customer ID
+                    }
+                }
+            }
+            throw new SQLException("Creating customer failed, no ID obtained.");
         }
     }
 
@@ -73,6 +84,24 @@ public class OnlineCustomerDAO {
             }
         }
         return customers;
+    }
+
+    public static double getTotalAmountSpentByCustomer(int customerId) {
+        String sql = "SELECT SUM(sold_price * quantity) AS total_amount_spent FROM OnlineOrderDetails WHERE customer_id = ?";
+        double totalAmount = 0.0;
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
+            preparedStatement.setInt(1, customerId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    totalAmount = resultSet.getDouble("total_amount_spent");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Handle exceptions properly in production code
+        }
+
+        return totalAmount;
     }
 
     // Get an online customer by customer_id

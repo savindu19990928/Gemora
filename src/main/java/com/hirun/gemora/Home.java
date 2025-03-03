@@ -4,17 +4,21 @@
  */
 package com.hirun.gemora;
 
+import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.FontFormatException;
+import java.awt.Graphics;
 import java.awt.GraphicsEnvironment;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.awt.Image;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
@@ -31,6 +35,8 @@ public class Home extends javax.swing.JFrame {
      */
     public Home() {
         initComponents();
+        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setBackgroundImage();
     }
 
     /**
@@ -63,6 +69,7 @@ public class Home extends javax.swing.JFrame {
         jMenuItem16 = new javax.swing.JMenuItem();
         jMenuItem15 = new javax.swing.JMenuItem();
         jMenuItem18 = new javax.swing.JMenuItem();
+        jMenuItem24 = new javax.swing.JMenuItem();
         jMenuItem13 = new javax.swing.JMenuItem();
         jMenuItem19 = new javax.swing.JMenuItem();
         jMenu4 = new javax.swing.JMenu();
@@ -70,7 +77,6 @@ public class Home extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Finance Management System");
-        setResizable(false);
 
         jMenu1.setText("Expenses");
 
@@ -218,6 +224,14 @@ public class Home extends javax.swing.JFrame {
         });
         jMenu3.add(jMenuItem18);
 
+        jMenuItem24.setText("Online Sales Report");
+        jMenuItem24.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem24ActionPerformed(evt);
+            }
+        });
+        jMenu3.add(jMenuItem24);
+
         jMenuItem13.setText("Generate Invoice");
         jMenuItem13.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -263,6 +277,38 @@ public class Home extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void setBackgroundImage() {
+        // Load image using InputStream
+        Image img = null;
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream("logo.png")) {
+            if (is == null) {
+                System.out.println("Image not found! Check the path.");
+                return;
+            }
+            img = ImageIO.read(is);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        // Create a JPanel with custom painting
+        final Image finalImg = img;
+        JPanel panel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (finalImg != null) {
+                    int x = (getWidth() - finalImg.getWidth(null)) / 2;
+                    int y = (getHeight() - finalImg.getHeight(null)) / 2;
+                    g.drawImage(finalImg, x, y, this);
+                }
+            }
+        };
+
+        panel.setLayout(new BorderLayout()); // Keeps layout working
+        setContentPane(panel); // Set this panel as content pane
+    }
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         // TODO add your handling code here:
@@ -500,6 +546,25 @@ public class Home extends javax.swing.JFrame {
         form.show();
     }//GEN-LAST:event_jMenuItem20ActionPerformed
 
+    private void jMenuItem24ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem24ActionPerformed
+        try {
+            InputStream fontStream = getClass().getClassLoader().getResourceAsStream("DejaVuSans.ttf");
+            Font font = Font.createFont(Font.TRUETYPE_FONT, fontStream);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(font);
+            InputStream reportPath = getClass().getClassLoader().getResourceAsStream("OnlineSales.jasper");
+            JasperPrint jasperReport = JasperFillManager.fillReport(reportPath, null, DatabaseConnection.getConnection());
+            JRViewer viewer = new JRViewer(jasperReport);
+            JFrame frame = new JFrame("Jasper Report Viewer");
+            frame.getContentPane().add(viewer);
+            frame.setSize(800, 600);
+            frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+            frame.setVisible(true);
+        } catch (SQLException | JRException | FontFormatException | IOException ex) {
+            Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jMenuItem24ActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenu jMenu1;
@@ -521,6 +586,7 @@ public class Home extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem20;
     private javax.swing.JMenuItem jMenuItem22;
     private javax.swing.JMenuItem jMenuItem23;
+    private javax.swing.JMenuItem jMenuItem24;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;

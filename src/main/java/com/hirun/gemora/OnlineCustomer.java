@@ -309,7 +309,7 @@ public class OnlineCustomer extends javax.swing.JFrame {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         try {
-            int customerID = Integer.parseInt(jTextField9.getText().trim()); 
+            int customerID = Integer.parseInt(jTextField9.getText().trim());
             // Example values, replace with actual values from your UI fields or other sources
             String customerName = jTextField8.getText().trim();  // Assuming there's a JTextField for customer name
             String phoneNumber = jTextField5.getText().trim();  // Assuming there's a JTextField for phone number
@@ -330,7 +330,7 @@ public class OnlineCustomer extends javax.swing.JFrame {
             }
 
             // Parse the ordered and delivered dates from String to Timestamp
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");  // Adjust the format as per your input
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");  // Adjusted format for date only
             Timestamp orderedDate = null;
             Timestamp deliveredDate = null;
 
@@ -339,23 +339,22 @@ public class OnlineCustomer extends javax.swing.JFrame {
                     orderedDate = new Timestamp(dateFormat.parse(orderedDateString).getTime());
                 }
 
-                // If jCheckBox1 is not checked, set deliveredDate to null
+                // If jCheckBox1 is checked, set deliveredDate to the parsed value or current timestamp if empty
                 if (jCheckBox1.isSelected()) {
                     if (!deliveredDateString.isEmpty()) {
                         deliveredDate = new Timestamp(dateFormat.parse(deliveredDateString).getTime());
                     } else {
-                        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-                        deliveredDate = timestamp;
+                        deliveredDate = new Timestamp(System.currentTimeMillis()); // Use current timestamp if no delivered date is provided
                     }
                 } else {
                     deliveredDate = null;  // Set deliveredDate to null if checkbox is unchecked
                 }
             } catch (ParseException e) {
-                JOptionPane.showMessageDialog(this, "Invalid date format. Please use the format: yyyy-MM-dd HH:mm:ss", "Date Format Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Invalid date format. Please use the format: yyyy-MM-dd", "Date Format Error", JOptionPane.ERROR_MESSAGE);
                 return;  // Stop execution if date parsing fails
             }
 
-            // 1. Call the addOnlineCustomer method from OnlineCustomerDAO
+            // 1. Call the updateOnlineCustomer method from OnlineCustomerDAO
             OnlineCustomerDAO.updateOnlineCustomer(customerID, customerName, phoneNumber, address, orderedDate, deliveredDate, issue);
 
             // Provide feedback to the user (Optional)
@@ -391,27 +390,31 @@ public class OnlineCustomer extends javax.swing.JFrame {
                 throw new IllegalArgumentException("Address cannot be empty.");
             }
 
-            // Parse the ordered and delivered dates from String to Timestamp
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");  // Adjust the format as per your input
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");  // Adjusted format for date only
             Timestamp orderedDate = null;
             Timestamp deliveredDate = null;
 
             try {
-                if (!orderedDateString.isEmpty()) {
+                if (orderedDateString.isEmpty()) {
+                    orderedDate = new Timestamp(System.currentTimeMillis()); // Set current timestamp if ordered date is empty
+                } else {
                     orderedDate = new Timestamp(dateFormat.parse(orderedDateString).getTime());
                 }
+
                 if (!deliveredDateString.isEmpty()) {
                     deliveredDate = new Timestamp(dateFormat.parse(deliveredDateString).getTime());
                 }
+
             } catch (ParseException e) {
-                JOptionPane.showMessageDialog(this, "Invalid date format. Please use the format: yyyy-MM-dd HH:mm:ss", "Date Format Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Invalid date format. Please use the format: yyyy-MM-dd", "Date Format Error", JOptionPane.ERROR_MESSAGE);
                 return;  // Stop execution if date parsing fails
             }
 
             // 1. Call the addOnlineCustomer method from OnlineCustomerDAO
-            OnlineCustomerDAO.addOnlineCustomer(customerName, phoneNumber, address, orderedDate, deliveredDate, issue);
+            int result = OnlineCustomerDAO.addOnlineCustomer(customerName, phoneNumber, address, orderedDate, deliveredDate, issue);
 
             // Clear UI fields after successful insertion (Optional)
+            jTextField9.setText(result + "");
             jTextField8.setText("");
             jTextField5.setText("");
             jTextField6.setText("");
@@ -452,6 +455,7 @@ public class OnlineCustomer extends javax.swing.JFrame {
                 jTextField5.setText(customer.getString("phone_number"));
                 jTextField6.setText(customer.getString("address"));
                 jTextField2.setText(customer.getString("ordered_date"));
+                jTextField4.setText(OnlineCustomerDAO.getTotalAmountSpentByCustomer(customerId) + "");
 
                 // Handle nullable delivered_date
                 String dDate = customer.optString("delivered_date", null); // Use optString with default null
@@ -463,7 +467,7 @@ public class OnlineCustomer extends javax.swing.JFrame {
                     jCheckBox1.setSelected(false);
                 }
 
-                jTextField1.setText(customer.optString("issue",""));
+                jTextField1.setText(customer.optString("issue", ""));
             } else {
                 // If customer is not found, show an error message
                 JOptionPane.showMessageDialog(this, "Customer not found.", "Search Error", JOptionPane.ERROR_MESSAGE);

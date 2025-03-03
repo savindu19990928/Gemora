@@ -13,7 +13,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
@@ -241,7 +240,7 @@ public class Lot extends javax.swing.JFrame {
         return false;
     }
 
-    public double getTotalProductLotCostByDetails(String productName, String colorName, String sizeName) {
+    public double getTotalProductLotCostByDetails(String productName, String colorName, String sizeName, int quantity) {
         double totalMaterialCost = 0.0;
         double additionalCost = 0.0;
 
@@ -291,7 +290,7 @@ public class Lot extends javax.swing.JFrame {
             e.printStackTrace();
         }
 
-        return totalMaterialCost + additionalCost;
+        return totalMaterialCost + (additionalCost/quantity);
     }
 
 
@@ -300,9 +299,11 @@ public class Lot extends javax.swing.JFrame {
             String productNameText = jTextField8.getText();
             String productNameCombo = (String) jComboBox3.getSelectedItem();
 
-            String productName = "";
+            String productName = null;
             if (productNameText.isEmpty()) {
                 productName = productNameCombo;
+            } else {
+                productName = productNameText; // Otherwise, use combo box selection
             }
 
             // Attempt to delete the product
@@ -323,16 +324,18 @@ public class Lot extends javax.swing.JFrame {
             String productNameText = jTextField8.getText();
             String productNameCombo = (String) jComboBox3.getSelectedItem();
 
-            String productName = "";
+            String productName = null;
             if (productNameText.isEmpty()) {
                 productName = productNameCombo;
+            } else {
+                productName = productNameText; // Otherwise, use combo box selection
             }
 
             String colorName = (String) jComboBox1.getSelectedItem(); // Get color name
             String sizeName = (String) jComboBox2.getSelectedItem();  // Get size name
 
             // Validate input fields
-            if (productName.isEmpty() || colorName == null || sizeName == null) {
+            if (colorName == null || sizeName == null) {
                 JOptionPane.showMessageDialog(this, "Please provide valid product name, color, and size.", "Validation Error", JOptionPane.WARNING_MESSAGE);
                 return; // Exit early if validation fails
             }
@@ -380,9 +383,11 @@ public class Lot extends javax.swing.JFrame {
         String productNameText = jTextField8.getText();
         String productNameCombo = (String) jComboBox3.getSelectedItem();
 
-        String productName = "";
+        String productName = null;
         if (productNameText.isEmpty()) {
             productName = productNameCombo;
+        } else {
+            productName = productNameText; // Otherwise, use combo box selection
         }
 
         try {
@@ -422,9 +427,11 @@ public class Lot extends javax.swing.JFrame {
             String productNameText = jTextField8.getText();
             String productNameCombo = (String) jComboBox3.getSelectedItem();
 
-            String productName = "";
+            String productName = null;
             if (productNameText.isEmpty()) {
                 productName = productNameCombo;
+            } else {
+                productName = productNameText;
             }
 
             String colorName = (String) jComboBox1.getSelectedItem();      // Assuming jComboBox1 is the JComboBox for color name input
@@ -437,6 +444,7 @@ public class Lot extends javax.swing.JFrame {
 
             // Call the method to get the product lot details from the database
             JSONObject productLotDetails = ProductDAO.getProductLotByDetails(productName, colorName, sizeName);
+            int quantity = ProductDAO.getTotalProductsByProductName(productName);
 
             if (productLotDetails != null) {
                 // Populate the fields with the product lot details
@@ -445,7 +453,7 @@ public class Lot extends javax.swing.JFrame {
                 jComboBox2.setSelectedItem(productLotDetails.getString("size_name"));        // Assuming jComboBox2 exists
                 jTextField2.setText(String.valueOf(productLotDetails.getInt("quantity")));  // Assuming jTextFieldQuantity exists
                 jTextField3.setText(String.valueOf(productLotDetails.getInt("damaged_unit")));  // Assuming jTextFieldDamagedUnits exists
-                jTextField4.setText(String.valueOf(getTotalProductLotCostByDetails(productLotDetails.getString("product_name"), productLotDetails.getString("color_name"), productLotDetails.getString("size_name"))));
+                jTextField4.setText(String.valueOf(getTotalProductLotCostByDetails(productLotDetails.getString("product_name"), productLotDetails.getString("color_name"), productLotDetails.getString("size_name"), quantity)));
             } else {
                 // If no product lot details are found, check if the product name exists
                 JSONObject product = ProductDAO.getProductByName(productName);
@@ -509,42 +517,45 @@ public class Lot extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-        String productName = jTextField8.getText();  // Assuming jTextFieldProductName is a JTextField for product name input
-        String colorName = (String) jComboBox1.getSelectedItem();      // Assuming jTextFieldColorName is a JTextField for color name input
-        String sizeName = (String) jComboBox2.getSelectedItem();
-        int id = ProductLotDAO.getLotIdByDetails(productName, colorName, sizeName);
-
-        if (id == -1) {
-            try {
-                // Get the product id, color id, and size id
-                int productId = ProductDAO.getProductByName(productName).getInt("product_id");
-                int colorId = ColorDAO.getColorByName(colorName).getInt("color_id");
-                int sizeId = SizeDAO.getSizeByName(sizeName).getInt("size_id");
-
-                // Create a new ProductLot
-                ProductLotDAO.addProductLot(productId, colorId, sizeId, Integer.parseInt(jTextField2.getText()), Integer.parseInt(jTextField3.getText()));
-
-                // Inform the user
-                JOptionPane.showMessageDialog(this, "New Product Lot created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-            } catch (SQLException e) {
-                JOptionPane.showMessageDialog(this, "An error occurred while creating the product lot.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-
         try {
+            String productName = jTextField8.getText();  // Assuming jTextFieldProductName is a JTextField for product name input
+            String colorName = (String) jComboBox1.getSelectedItem();      // Assuming jTextFieldColorName is a JTextField for color name input
+            String sizeName = (String) jComboBox2.getSelectedItem();
+            int id = ProductLotDAO.getLotIdByDetails(productName, colorName, sizeName);
+            int productId = ProductDAO.getProductByName(productName).getInt("product_id");
 
-            // Ensure materialId exists in the database before opening the form
-            if (!doesLotIdExist(id)) {
-                JOptionPane.showMessageDialog(this, "Please enter a valid Data.", "Invalid Material ID", JOptionPane.WARNING_MESSAGE);
-                return;
+            if (id == -1) {
+                try {
+                    int colorId = ColorDAO.getColorByName(colorName).getInt("color_id");
+                    int sizeId = SizeDAO.getSizeByName(sizeName).getInt("size_id");
+
+                    // Create a new ProductLot
+                    ProductLotDAO.addProductLot(productId, colorId, sizeId, Integer.parseInt(jTextField2.getText()), Integer.parseInt(jTextField3.getText()));
+
+                    // Inform the user
+                    JOptionPane.showMessageDialog(this, "New Product Lot created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                } catch (SQLException e) {
+                    JOptionPane.showMessageDialog(this, "An error occurred while creating the product lot.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
 
-            // Open the ManageCost form
-            ManageCostLot form = new ManageCostLot(id);
-            form.setVisible(true);  // Use setVisible instead of show() (show() is deprecated)
+            try {
 
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid input. Please enter a numeric Material ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                // Ensure materialId exists in the database before opening the form
+                if (!doesLotIdExist(id)) {
+                    JOptionPane.showMessageDialog(this, "Please enter a valid Data.", "Invalid Material ID", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                // Open the ManageCost form
+                ManageCostLot form = new ManageCostLot(productId);
+                form.setVisible(true);  // Use setVisible instead of show() (show() is deprecated)
+
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Invalid input. Please enter a numeric Material ID.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Lot.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButton6ActionPerformed
 
